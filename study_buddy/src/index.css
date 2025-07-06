@@ -1,8 +1,24 @@
+@import url("https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Custom styles can be added here */
+:root {
+  --navy: rgb(8, 44, 108);
+  --navy-light: rgba(8, 44, 108, 0.8);
+  --navy-lighter: rgba(8, 44, 108, 0.1);
+  --navy-subtle: rgba(8, 44, 108, 0.05);
+  --red: #e63946;
+  --red-light: rgba(230, 57, 70, 0.1);
+  --white: #ffffff;
+  --off-white: #f8f9fa;
+  --light-gray: #e9ecef;
+  --medium-gray: #dee2e6;
+  --dark-gray: #6c757d;
+  --text-dark: #212529;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
