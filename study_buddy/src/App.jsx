@@ -1,14 +1,12 @@
-import { useState } from 'react'
+import React from 'react';
+import Header from './components/Header';
 
 function App() {
-
   return (
-    <>
-    <div>
-        <h1>Studdy Buddy</h1>
+    <div className="min-h-screen flex flex-col">
+      <Header />
     </div>
-    </>
-  )
+  );
 }
 
-export default App
+export default App;
