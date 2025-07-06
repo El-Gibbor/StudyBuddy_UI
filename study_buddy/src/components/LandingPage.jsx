@@ -47,6 +47,46 @@ const LandingPage = () => {
                     </div>
                 </div>
             </section>
+            
+            {/* Statistics */}
+            <section className="py-16 bg-white dark:bg-gray-900">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                        <div className="text-center">
+                            <div className="text-3xl md:text-4xl font-bold text-blue-800 dark:text-blue-400 mb-2">
+                                --
+                            </div>
+                            <div className="text-gray-600 dark:text-gray-300 font-medium">
+                                Registered Users (Coming Soon)
+                            </div>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-3xl md:text-4xl font-bold text-blue-800 dark:text-blue-400 mb-2">
+                                --
+                            </div>
+                            <div className="text-gray-600 dark:text-gray-300 font-medium">
+                                Study Sessions (Coming Soon)
+                            </div>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-3xl md:text-4xl font-bold text-blue-800 dark:text-blue-400 mb-2">
+                                --
+                            </div>
+                            <div className="text-gray-600 dark:text-gray-300 font-medium">
+                                Satisfaction Rate (Coming Soon)
+                            </div>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-3xl md:text-4xl font-bold text-blue-800 dark:text-blue-400 mb-2">
+                                --
+                            </div>
+                            <div className="text-gray-600 dark:text-gray-300 font-medium">
+                                Resolved Tickets (Coming Soon)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
             {/* Features Section */}
             <section id="features" className="py-20 bg-custom-off-white">
