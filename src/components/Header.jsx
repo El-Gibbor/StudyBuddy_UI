@@ -29,13 +29,13 @@ const Header = () => {
 
                     {/* Navigation - Desktop */}
                     <nav className="hidden md:flex items-center text-white space-x-8">
-                        <a href="#features" className="text-gray-700 text-white">
+                        <a href="#features" className="text-gray-700">
                             Features
                         </a>
-                        <a href="#how-it-works" className="text-gray-700 text-white">
+                        <a href="#how-it-works" className="text-gray-700">
                             How It Works
                         </a>
-                        <a href="#about" className="text-gray-700 text-white">
+                        <a href="#about" className="text-gray-700">
                             About
                         </a>
                     </nav>
