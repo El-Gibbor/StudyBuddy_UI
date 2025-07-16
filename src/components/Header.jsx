@@ -1,6 +1,9 @@
 import React from 'react';
 
 const Header = () => {
+    const { isAuthenticated, user, signOut } = useAuth();
+
+
     const handleLogin = () => {
         // login implementation
     };
@@ -56,18 +59,18 @@ const Header = () => {
                             </div>
                         ) : (
                             <>
-                        <button
-                            onClick={handleLogin}
-                            className="px-4 py-2 text-sm font-medium border border-blue-500 text-blue-400 hover:bg-blue-500 hover:text-white rounded-md transition-colors"
-                        >
-                            Login
-                        </button>
-                        <button
-                            onClick={handleSignUp}
-                            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
-                        >
-                            Sign Up
-                        </button>
+                                <button
+                                    onClick={handleLogin}
+                                    className="px-4 py-2 text-sm font-medium border border-blue-500 text-blue-400 hover:bg-blue-500 hover:text-white rounded-md transition-colors"
+                                >
+                                    Login
+                                </button>
+                                <button
+                                    onClick={handleSignUp}
+                                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+                                >
+                                    Sign Up
+                                </button>
                             </>
                         )}
                     </div>
@@ -125,18 +128,18 @@ const Header = () => {
                                     </button>
                                 ) : (
                                     <>
-                                <button
-                                    onClick={handleLogin}
-                                    className="w-full text-left px-3 py-2 text-base font-medium border border-blue-500 text-blue-400 hover:bg-blue-500 hover:text-white rounded-md transition-colors"
-                                >
-                                    Login
-                                </button>
-                                <button
-                                    onClick={handleSignUp}
-                                    className="w-full text-left px-3 py-2 text-base font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
-                                >
-                                    Sign Up
-                                </button>
+                                        <button
+                                            onClick={handleLogin}
+                                            className="w-full text-left px-3 py-2 text-base font-medium border border-blue-500 text-blue-400 hover:bg-blue-500 hover:text-white rounded-md transition-colors"
+                                        >
+                                            Login
+                                        </button>
+                                        <button
+                                            onClick={handleSignUp}
+                                            className="w-full text-left px-3 py-2 text-base font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+                                        >
+                                            Sign Up
+                                        </button>
                                     </>
                                 )}
                             </div>
