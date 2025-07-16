@@ -24,10 +24,10 @@ const LandingPage = () => {
                 <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
                     <div className="text-center">
                         <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight text-navy">
-                            Connect. Learn. <span className="text-yellow-300">Succeed!</span>
+                            Connect. Support. <span className="text-yellow-300">Succeed!</span>
                         </h1>
                         <p className="text-xl md:text-xl mb-8 text-blue-400 max-w-4xl mx-auto">
-                            Your peer-powered academic support platform, built for ALU students, by ALU students. Are you stuck on a concept or ready to lend a hand? StudyBuddy connects you with the right peers based on skills, availability, and course context.
+                           Peer-powered academic support platform, built for ALU students, by ALU student. Are you stuck on a concept or ready to lend a hand? StudyBuddy connects you with the right peers based on skills, availability, and course context.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                             <button
@@ -96,7 +96,7 @@ const LandingPage = () => {
                         </h2>
                         <p className="text-xl text-custom-dark-gray max-w-3xl mx-auto">
                             Our platform makes it easy to find academic support and share knowledge
-                            with fellow ALU students across all campuses.
+                            with fellow ALU students across all courses, its modules and area of specialization.
                         </p>
                     </div>
 
