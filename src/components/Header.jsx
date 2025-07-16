@@ -71,6 +71,62 @@ const Header = () => {
                         </svg>
                     </button>
                 </div>
+                {/* Mobile menu */}
+                {isMenuOpen && (
+                    <div className="md:hidden border-t border-gray-600">
+                        <div className="px-2 pt-2 pb-3 space-y-1">
+                            <a
+                                href="#features"
+                                className="block px-3 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700 rounded-md transition-colors"
+                                onClick={() => setIsMenuOpen(false)}
+                            >
+                                Features
+                            </a>
+                            <a
+                                href="#how-it-works"
+                                className="block px-3 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700 rounded-md transition-colors"
+                                onClick={() => setIsMenuOpen(false)}
+                            >
+                                How It Works
+                            </a>
+                            <a
+                                href="#about"
+                                className="block px-3 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700 rounded-md transition-colors"
+                                onClick={() => setIsMenuOpen(false)}
+                            >
+                                About
+                            </a>
+                        </div>
+                        <div className="pt-4 pb-3 border-t border-gray-600">
+                            <div className="px-2 space-y-2">
+                                {isAuthenticated ? (
+                                    <button
+                                        onClick={handleSignOut}
+                                        className="w-full text-left px-3 py-2 text-base font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+                                    >
+                                        Sign Out
+                                    </button>
+                                ) : (
+                                    <>
+                                <button
+                                    onClick={handleLogin}
+                                    className="w-full text-left px-3 py-2 text-base font-medium border border-blue-500 text-blue-400 hover:bg-blue-500 hover:text-white rounded-md transition-colors"
+                                >
+                                    Login
+                                </button>
+                                <button
+                                    onClick={handleSignUp}
+                                    className="w-full text-left px-3 py-2 text-base font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+                                >
+                                    Sign Up
+                                </button>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
             </div>
         </header>
     );
