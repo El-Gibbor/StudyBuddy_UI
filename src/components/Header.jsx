@@ -1,15 +1,31 @@
 import React from 'react';
+import { useState } from 'react';
+import { useAuth } from './auth/AuthContext';
+import AuthPage from './auth/AuthPage';
 
 const Header = () => {
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [showAuthModal, setShowAuthModal] = useState(false);
+    const [authMode, setAuthMode] = useState('login');
     const { isAuthenticated, user, signOut } = useAuth();
 
+    const toggleMenu = () => {
+        setIsMenuOpen(!isMenuOpen);
+    };
 
     const handleLogin = () => {
-        // login implementation
+        setAuthMode('login');
+        setShowAuthModal(true);
     };
 
     const handleSignUp = () => {
-        //    signup implementation
+        setAuthMode('register');
+        setShowAuthModal(true);
+    };
+
+    const handleSignOut = () => {
+        signOut();
+        setIsMenuOpen(false);
     };
 
     return (
