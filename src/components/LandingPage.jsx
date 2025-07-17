@@ -1,8 +1,18 @@
 import React from 'react';
 
-const LandingPage = () => {
+import { useAuth } from './auth/AuthContext';
+
+const LandingPage = ({ onShowAuth }) => {
+    const { isAuthenticated } = useAuth();
+    
     const handleGetStarted = () => {
-        // onbarding flow - registration page
+        if (isAuthenticated) {
+            // User is already authenticated, redirect to dashboard or main app
+            console.log("User is authenticated, redirect to dashboard");
+        } else {
+            // Show authentication modal with signup mode
+            onShowAuth('signup');
+        }
     };
 
     const handleLearnMore = () => {
