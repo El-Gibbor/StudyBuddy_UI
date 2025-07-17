@@ -1,13 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { User, GraduationCap, Eye, EyeOff, Mail, Lock, UserPlus, LogIn, Check, X, Star, Clock, DollarSign } from 'lucide-react';
+import { useAuth } from './AuthContext';
 
-const AuthPage = ({ defaultMode = 'signin' }) => {
+const AuthPage = ({ defaultMode = 'signin', onSuccess }) => {
   const [isSignUp, setIsSignUp] = useState(defaultMode === 'signup');
   const [isLoading, setIsLoading] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [confirmationEmail, setConfirmationEmail] = useState('');
+  const [confirmationCode, setConfirmationCode] = useState('');
+  const [isResendingCode, setIsResendingCode] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
+
+  const { register, login, confirmRegistration, resendConfirmationCode } = useAuth();
 
   // Form data state
   const [formData, setFormData] = useState({
@@ -27,6 +34,8 @@ const AuthPage = ({ defaultMode = 'signin' }) => {
 
   // Validation state
   const [errors, setErrors] = useState({});
+  const [submitError, setSubmitError] = useState('');
+  const [submitSuccess, setSubmitSuccess] = useState('');
   const [passwordStrength, setPasswordStrength] = useState(0);
   const [moduleInput, setModuleInput] = useState('');
 
@@ -163,14 +172,88 @@ const AuthPage = ({ defaultMode = 'signin' }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitError('');
+    setSubmitSuccess('');
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      if (isSignUp) {
+        // Registration
+        const registrationData = {
+          fullName: formData.fullName,
+          email: formData.email,
+          password: formData.password,
+          university: formData.university,
+          yearOfStudy: formData.yearOfStudy,
+          major: formData.major,
+          bio: formData.bio,
+          modules: formData.modules,
+          hourlyRate: formData.hourlyRate ? parseFloat(formData.hourlyRate) : undefined,
+          availableTimeSlots: formData.availableTimeSlots,
+          helpExperience: formData.helpExperience
+        };
+
+        const result = await register(registrationData);
+        if (result.success) {
+          setConfirmationEmail(formData.email);
+          setShowConfirmation(true);
+          setSubmitSuccess('Registration successful! Please check your email for confirmation code.');
+        }
+      } else {
+        // Login
+        const result = await login(formData.email, formData.password);
+        if (result.success) {
+          setSubmitSuccess('Login successful!');
+          if (onSuccess) {
+            setTimeout(() => onSuccess(), 1000);
+          }
+        }
+      }
+    } catch (error) {
+      setSubmitError(error.message);
+    } finally {
       setIsLoading(false);
-      console.log('Form submitted:', { ...formData, isSignUp });
-      // Handle success/error here
-    }, 2000);
+    }
+  };
+
+  const handleConfirmation = async (e) => {
+    e.preventDefault();
+    setSubmitError('');
+    setSubmitSuccess('');
+    setIsLoading(true);
+
+    try {
+      const result = await confirmRegistration(confirmationEmail, confirmationCode);
+      if (result.success) {
+        setSubmitSuccess('Email confirmed successfully! You can now sign in.');
+        setTimeout(() => {
+          setShowConfirmation(false);
+          setIsSignUp(false);
+          setConfirmationCode('');
+        }, 2000);
+      }
+    } catch (error) {
+      setSubmitError(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendCode = async () => {
+    setSubmitError('');
+    setSubmitSuccess('');
+    setIsResendingCode(true);
+
+    try {
+      const result = await resendConfirmationCode(confirmationEmail);
+      if (result.success) {
+        setSubmitSuccess('Confirmation code resent! Please check your email.');
+      }
+    } catch (error) {
+      setSubmitError(error.message);
+    } finally {
+      setIsResendingCode(false);
+    }
   };
 
   const getPasswordStrengthColor = () => {
@@ -189,6 +272,93 @@ const AuthPage = ({ defaultMode = 'signin' }) => {
   return (
     <div className="flex items-center justify-center p-2">
       <div className="w-full max-w-4xl bg-white shadow-2xl overflow-hidden">
+        {/* Email Confirmation Modal */}
+        {showConfirmation && (
+          <div className="p-8 lg:p-12">
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Mail className="w-8 h-8 text-blue-600" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Check Your Email</h2>
+              <p className="text-gray-600">
+                We've sent a confirmation code to <strong>{confirmationEmail}</strong>
+              </p>
+            </div>
+
+            <form onSubmit={handleConfirmation} className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Confirmation Code *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={confirmationCode}
+                  onChange={(e) => setConfirmationCode(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 text-center text-lg tracking-widest"
+                  placeholder="Enter 6-digit code"
+                  maxLength={6}
+                />
+              </div>
+
+              {submitError && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+                  <p className="text-sm text-red-600 flex items-center">
+                    <X className="w-4 h-4 mr-2" />
+                    {submitError}
+                  </p>
+                </div>
+              )}
+
+              {submitSuccess && (
+                <div className="p-3 bg-green-50 border border-green-200 rounded-md">
+                  <p className="text-sm text-green-600 flex items-center">
+                    <Check className="w-4 h-4 mr-2" />
+                    {submitSuccess}
+                  </p>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={isLoading || confirmationCode.length !== 6}
+                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-4 rounded-md font-medium hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center"
+              >
+                {isLoading ? (
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <>
+                    <Check className="w-5 h-5 mr-2" />
+                    Confirm Email
+                  </>
+                )}
+              </button>
+
+              <div className="text-center">
+                <p className="text-sm text-gray-600 mb-2">Didn't receive the code?</p>
+                <button
+                  type="button"
+                  onClick={handleResendCode}
+                  disabled={isResendingCode}
+                  className="text-blue-600 hover:text-blue-800 text-sm font-medium disabled:opacity-50"
+                >
+                  {isResendingCode ? 'Resending...' : 'Resend Code'}
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowConfirmation(false)}
+                className="w-full text-gray-600 hover:text-gray-800 text-sm font-medium"
+              >
+                Back to Registration
+              </button>
+            </form>
+          </div>
+        )}
+
+        {/* Main Auth Form */}
+        {!showConfirmation && (
         <div className="flex flex-col lg:flex-row">
           {/* Left Panel - Branding */}
           <div className="lg:w-1/2 bg-gradient-to-br from-blue-900 to-blue-800 p-8 lg:p-12 text-white">
@@ -264,6 +434,25 @@ const AuthPage = ({ defaultMode = 'signin' }) => {
             {/* Role Selection */}
 
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Error/Success Messages */}
+              {submitError && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+                  <p className="text-sm text-red-600 flex items-center">
+                    <X className="w-4 h-4 mr-2" />
+                    {submitError}
+                  </p>
+                </div>
+              )}
+
+              {submitSuccess && (
+                <div className="p-3 bg-green-50 border border-green-200 rounded-md">
+                  <p className="text-sm text-green-600 flex items-center">
+                    <Check className="w-4 h-4 mr-2" />
+                    {submitSuccess}
+                  </p>
+                </div>
+              )}
+
               {/* Sign Up Fields */}
               {isSignUp && (
                 <div className="space-y-4">
@@ -646,6 +835,7 @@ const AuthPage = ({ defaultMode = 'signin' }) => {
             </form>
           </div>
         </div>
+        )}
       </div>
     </div>
   );

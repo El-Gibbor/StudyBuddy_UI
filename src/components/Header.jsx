@@ -14,12 +14,12 @@ const Header = () => {
     };
 
     const handleLogin = () => {
-        setAuthMode('login');
+        setAuthMode('signin');
         setShowAuthModal(true);
     };
 
     const handleSignUp = () => {
-        setAuthMode('register');
+        setAuthMode('signup');
         setShowAuthModal(true);
     };
 
