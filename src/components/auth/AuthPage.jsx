@@ -27,7 +27,6 @@ const AuthPage = ({ defaultMode = 'signin', onSuccess }) => {
     major: '',
     bio: '',
     modules: [],
-    hourlyRate: '',
     availableTimeSlots: [],
     helpExperience: ''
   });
@@ -188,7 +187,6 @@ const AuthPage = ({ defaultMode = 'signin', onSuccess }) => {
           major: formData.major,
           bio: formData.bio,
           modules: formData.modules,
-          hourlyRate: formData.hourlyRate ? parseFloat(formData.hourlyRate) : undefined,
           availableTimeSlots: formData.availableTimeSlots,
           helpExperience: formData.helpExperience
         };

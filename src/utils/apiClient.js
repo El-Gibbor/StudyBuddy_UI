@@ -1,12 +1,12 @@
 import axios from "axios";
-const baseURL = import.meta.env.VITE_API_BASE_URL || "https://study-buddy-api-yaoz.onrender.com/api/v1";
+const baseURL = import.meta.env.VITE_API_LOCAL_URL || "https://study-buddy-api-yaoz.onrender.com/api/v1";
 const axiosClient = axios.create({
     baseURL: baseURL,
     headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
     },
-    withCredentials: true,
+    // withCredentials: true,
 });
 
 axiosClient.interceptors.request.use(
