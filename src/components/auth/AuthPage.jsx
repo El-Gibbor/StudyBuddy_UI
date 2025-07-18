@@ -178,20 +178,7 @@ const AuthPage = ({ defaultMode = 'signin', onSuccess }) => {
     try {
       if (isSignUp) {
         // Registration
-        const registrationData = {
-          fullName: formData.fullName,
-          email: formData.email,
-          password: formData.password,
-          university: formData.university,
-          yearOfStudy: formData.yearOfStudy,
-          major: formData.major,
-          bio: formData.bio,
-          modules: formData.modules,
-          availableTimeSlots: formData.availableTimeSlots,
-          helpExperience: formData.helpExperience
-        };
-
-        const result = await register(registrationData);
+        const result = await register(formData);
         if (result.success) {
           setConfirmationEmail(formData.email);
           setShowConfirmation(true);
@@ -208,6 +195,7 @@ const AuthPage = ({ defaultMode = 'signin', onSuccess }) => {
         }
       }
     } catch (error) {
+      console.error('Auth error:', error);
       setSubmitError(error.message);
     } finally {
       setIsLoading(false);
@@ -657,13 +645,13 @@ const AuthPage = ({ defaultMode = 'signin', onSuccess }) => {
                       Helper Information (Optional)
                     </h3>
                     <p className="text-sm text-gray-600 mb-4">
-                      Fill it if you want to offer help to other students. You can always update this later.
+                      Complete this section if you want to help other students. You can always update this information later in your profile.
                     </p>
 
                     {/* Modules */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Modules/Subjects You Can Help With
+                        Skills/Subjects You Can Help With
                       </label>
                       <div className="flex space-x-2 mb-2">
                         <input
@@ -672,7 +660,7 @@ const AuthPage = ({ defaultMode = 'signin', onSuccess }) => {
                           onChange={(e) => setModuleInput(e.target.value)}
                           onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addModule())}
                           className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900"
-                          placeholder="e.g., Web Infrastructure, Linux etc."
+                          placeholder="e.g., JavaScript, Python, Data Analysis, etc."
                         />
                         <button
                           type="button"
@@ -704,8 +692,11 @@ const AuthPage = ({ defaultMode = 'signin', onSuccess }) => {
                     {/* Available Time Slots */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-3">
-                        Available Time Slots
+                        Available Time Slots (Optional - for future features)
                       </label>
+                      <p className="text-xs text-gray-500 mb-3">
+                        This information will be used for future scheduling features.
+                      </p>
                       <div className="space-y-4 max-h-64 overflow-y-auto">
                         {timeSlots.map((daySlot) => (
                           <div key={daySlot.day} className="border rounded-lg p-3 bg-gray-50">
