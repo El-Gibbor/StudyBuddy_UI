@@ -727,20 +727,6 @@ const AuthPage = ({ defaultMode = 'signin', onSuccess }) => {
                         ))}
                       </div>
                     </div>
-
-                    {/* Teaching Experience */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Help/Tutoring Experience
-                      </label>
-                      <textarea
-                        value={formData.helpExperience}
-                        onChange={(e) => handleInputChange('helpExperience', e.target.value)}
-                        rows={3}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900"
-                        placeholder="Describe any experience you have helping other students..."
-                      />
-                    </div>
                   </div>
                 </div>
               )}
