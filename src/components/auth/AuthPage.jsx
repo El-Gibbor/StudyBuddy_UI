@@ -21,14 +21,13 @@ const AuthPage = ({ defaultMode = 'signin', onSuccess }) => {
     email: '',
     password: '',
     confirmPassword: '',
-    fullName: '',
-    university: 'African Leadership University',
+    fullname: '',
+    schoolName: 'African Leadership University',
     yearOfStudy: '',
     major: '',
     bio: '',
-    modules: [],
+    // skills: [],
     availableTimeSlots: [],
-    helpExperience: ''
   });
 
   // Validation state
@@ -144,10 +143,10 @@ const AuthPage = ({ defaultMode = 'signin', onSuccess }) => {
   };
 
   const addModule = () => {
-    if (moduleInput.trim() && !formData.modules.includes(moduleInput.trim())) {
+    if (moduleInput.trim() && !formData.skills.includes(moduleInput.trim())) {
       setFormData(prev => ({
         ...prev,
-        modules: [...prev.modules, moduleInput.trim()]
+        skills: [...prev.skills, moduleInput.trim()]
       }));
       setModuleInput('');
     }
@@ -156,7 +155,7 @@ const AuthPage = ({ defaultMode = 'signin', onSuccess }) => {
   const removeModule = (moduleToRemove) => {
     setFormData(prev => ({
       ...prev,
-      modules: prev.modules.filter(module => module !== moduleToRemove)
+      skills: prev.skills.filter(module => module !== moduleToRemove)
     }));
   };
 
@@ -449,8 +448,8 @@ const AuthPage = ({ defaultMode = 'signin', onSuccess }) => {
                     <input
                       type="text"
                       required
-                      value={formData.fullName}
-                      onChange={(e) => handleInputChange('fullName', e.target.value)}
+                      value={formData.fullname}
+                      onChange={(e) => handleInputChange('fullname', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900"
                       placeholder="Enter your full name"
                     />
@@ -576,18 +575,18 @@ const AuthPage = ({ defaultMode = 'signin', onSuccess }) => {
               {/* Additional Sign Up Fields */}
               {isSignUp && (
                 <div className="space-y-4">
-                  {/* University */}
+                  {/* schoolName */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      University *
+                      schoolName *
                     </label>
                     <input
                       type="text"
                       required
-                      value={formData.university}
-                      onChange={(e) => handleInputChange('university', e.target.value)}
+                      value={formData.schoolName}
+                      onChange={(e) => handleInputChange('schoolName', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900"
-                      placeholder="African Leadership University"
+                      placeholder="African Leadership schoolName"
                     />
                   </div>
 
@@ -648,8 +647,8 @@ const AuthPage = ({ defaultMode = 'signin', onSuccess }) => {
                       Complete this section if you want to help other students. You can always update this information later in your profile.
                     </p>
 
-                    {/* Modules */}
-                    <div>
+                    {/* skills */}
+                    {/* <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Skills/Subjects You Can Help With
                       </label>
@@ -666,12 +665,12 @@ const AuthPage = ({ defaultMode = 'signin', onSuccess }) => {
                           type="button"
                           onClick={addModule}
                           className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200"
-                        >
-                          Add
+                        > */}
+                          {/* Add
                         </button>
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        {formData.modules.map((module, index) => (
+                        {formData.skills.map((module, index) => (
                           <span
                             key={index}
                             className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
@@ -687,7 +686,7 @@ const AuthPage = ({ defaultMode = 'signin', onSuccess }) => {
                           </span>
                         ))}
                       </div>
-                    </div>
+                    </div> */}
 
                     {/* Available Time Slots */}
                     <div>

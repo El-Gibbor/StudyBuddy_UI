@@ -38,14 +38,14 @@ export const AuthProvider = ({ children }) => {
     const register = async (userData) => {
         try {
             const registrationPayload = {
-                name: userData.fullName,
+                fullname: userData.fullname,
                 email: userData.email,
                 password: userData.password,
-                schoolName: userData.university,
+                schoolName: userData.schoolName,
                 studyYear: userData.yearOfStudy,
                 major: userData.major,
                 bio: userData.bio || '',
-                skills: userData.modules || [],
+                // skills: userData.modules || [],
                 role: 'BOTH',
                 availabilities: userData.availableTimeSlots || []
             };
