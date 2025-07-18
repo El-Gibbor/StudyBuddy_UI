@@ -37,30 +37,27 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (userData) => {
         try {
-            // Transform the data to match API expectations
+            // Transform the data to match API expectations based on swagger response
             const registrationPayload = {
-                fullName: userData.fullName,
+                name: userData.fullName,  // API expects 'name' not 'fullName'
                 email: userData.email,
                 password: userData.password,
-                university: userData.university,
-                yearOfStudy: userData.yearOfStudy,
+                schoolName: userData.university,  // API expects 'schoolName' not 'university'
+                studyYear: userData.yearOfStudy,  // API expects 'studyYear' not 'yearOfStudy'
                 major: userData.major,
                 bio: userData.bio || '',
-                modules: userData.modules || [],
-                availableTimeSlots: userData.availableTimeSlots || [],
-                helpExperience: userData.helpExperience || '',
-                // Add common required fields that might be missing
-                role: 'student', // Default role
-                isActive: true,
-                emailVerified: false
+                skills: userData.modules || [],  // API expects 'skills' not 'modules'
+                role: 'BOTH'  // Based on swagger, role can be 'BOTH'
+                // Note: availableTimeSlots and helpExperience don't seem to be in the API schema
             };
 
             console.log('Sending registration payload:', registrationPayload);
-            const res = await authService.register(userData);
+            const res = await authService.register(registrationPayload);
             const { data } = res;
-            console.log('Registration data:', userData);
+            console.log('Registration response:', data);
             return { success: true, data };
         } catch (error) {
+            console.error('Registration error:', error);
             throw new Error(error.message || 'Registration failed');
         }
     };
