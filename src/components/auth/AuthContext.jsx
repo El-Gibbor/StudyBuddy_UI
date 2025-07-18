@@ -37,18 +37,17 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (userData) => {
         try {
-            // Transform the data to match API expectations based on swagger response
             const registrationPayload = {
-                name: userData.fullName,  // API expects 'name' not 'fullName'
+                name: userData.fullName,
                 email: userData.email,
                 password: userData.password,
-                schoolName: userData.university,  // API expects 'schoolName' not 'university'
-                studyYear: userData.yearOfStudy,  // API expects 'studyYear' not 'yearOfStudy'
+                schoolName: userData.university,
+                studyYear: userData.yearOfStudy,
                 major: userData.major,
                 bio: userData.bio || '',
-                skills: userData.modules || [],  // API expects 'skills' not 'modules'
-                role: 'BOTH'  // Based on swagger, role can be 'BOTH'
-                // Note: availableTimeSlots and helpExperience don't seem to be in the API schema
+                skills: userData.modules || [],
+                role: 'BOTH',
+                availabilities: userData.availableTimeSlots || []
             };
 
             console.log('Sending registration payload:', registrationPayload);

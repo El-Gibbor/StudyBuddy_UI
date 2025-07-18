@@ -692,10 +692,10 @@ const AuthPage = ({ defaultMode = 'signin', onSuccess }) => {
                     {/* Available Time Slots */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-3">
-                        Available Time Slots (Optional - for future features)
+                        Available Time Slots (Optional)
                       </label>
                       <p className="text-xs text-gray-500 mb-3">
-                        This information will be used for future scheduling features.
+                        Select when you're available to help other students. This helps with scheduling study sessions.
                       </p>
                       <div className="space-y-4 max-h-64 overflow-y-auto">
                         {timeSlots.map((daySlot) => (
