@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }) => {
                 bio: userData.bio || '',
                 skills: userData.modules || [],
                 role: 'BOTH',
-                availableTimeSlots: userData.availableTimeSlots || []
+                availabilities: userData.availableTimeSlots || []
             };
 
             console.log('Sending registration payload:', registrationPayload);
