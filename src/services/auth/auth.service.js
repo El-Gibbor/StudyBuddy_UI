@@ -9,6 +9,7 @@ class AuthService {
         return res.data;
     }
     async register(userData){
+        console.log('AuthService: Sending registration data:', userData);
         const res = await axiosClient.post('/auth/register', userData);
         return res.data;
     }

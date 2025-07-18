@@ -37,6 +37,25 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (userData) => {
         try {
+            // Transform the data to match API expectations
+            const registrationPayload = {
+                fullName: userData.fullName,
+                email: userData.email,
+                password: userData.password,
+                university: userData.university,
+                yearOfStudy: userData.yearOfStudy,
+                major: userData.major,
+                bio: userData.bio || '',
+                modules: userData.modules || [],
+                availableTimeSlots: userData.availableTimeSlots || [],
+                helpExperience: userData.helpExperience || '',
+                // Add common required fields that might be missing
+                role: 'student', // Default role
+                isActive: true,
+                emailVerified: false
+            };
+
+            console.log('Sending registration payload:', registrationPayload);
             const res = await authService.register(userData);
             const { data } = res;
             console.log('Registration data:', userData);
