@@ -21,10 +21,10 @@ const UpcomingSessions = ({ sessions, loading, compact = false }) => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      weekday: 'short', 
-      month: 'short', 
-      day: 'numeric' 
+    return date.toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric'
     });
   };
 
@@ -32,10 +32,10 @@ const UpcomingSessions = ({ sessions, loading, compact = false }) => {
     const [hours, minutes] = timeString.split(':');
     const date = new Date();
     date.setHours(parseInt(hours), parseInt(minutes));
-    return date.toLocaleTimeString('en-US', { 
-      hour: 'numeric', 
+    return date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
       minute: '2-digit',
-      hour12: true 
+      hour12: true
     });
   };
 
@@ -93,7 +93,7 @@ const UpcomingSessions = ({ sessions, loading, compact = false }) => {
           {sessions.slice(0, compact ? 3 : sessions.length).map((session) => (
             <div
               key={session.id}
-              className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+              className="border border-gray-200 rounded-lg p-4 hover:shadow-lg shadow-md transition-shadow"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -103,7 +103,7 @@ const UpcomingSessions = ({ sessions, loading, compact = false }) => {
                       {getSessionTypeLabel(session.type)}
                     </span>
                   </div>
-                  
+
                   <div className="flex items-center space-x-4 text-sm text-gray-600 mb-3">
                     <div className="flex items-center space-x-1">
                       <User className="w-4 h-4" />
@@ -143,7 +143,7 @@ const UpcomingSessions = ({ sessions, loading, compact = false }) => {
                     </div>
                   </div>
                 </div>
-                
+
                 <ChevronRight className="w-5 h-5 text-gray-400" />
               </div>
             </div>

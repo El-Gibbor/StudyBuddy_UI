@@ -51,16 +51,16 @@ const SupportTickets = ({ myTickets, claimedTickets, loading, compact = false })
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric' 
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric'
     });
   };
 
   const renderTicketCard = (ticket, type = 'my') => (
     <div
       key={ticket.id}
-      className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+      className="border border-gray-200 rounded-lg p-4 hover:shadow-lg shadow-md transition-shadow"
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
