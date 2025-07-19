@@ -8,8 +8,7 @@ const WelcomeSection = ({ user }) => {
   const stats = {
     sessionsCompleted: '--',
     helpedStudents: '--',
-    averageRating: 4.7,
-    upcomingThisWeek: 3
+    upcomingThisWeek: '--'
   };
 
   const getGreeting = () => {
@@ -63,13 +62,7 @@ const WelcomeSection = ({ user }) => {
           <div className="text-2xl font-bold text-blue-600">{stats.sessionsCompleted}</div>
           <div className="text-sm text-gray-600">Sessions Completed</div>
         </div>
-        <div className="bg-green-50 rounded-lg p-4 text-center">
-          <div className="flex items-center justify-center w-8 h-8 bg-green-100 rounded-full mx-auto mb-2">
-            <Star className="w-4 h-4 text-green-600" />
-          </div>
-          <div className="text-2xl font-bold text-green-600">{stats.averageRating}</div>
-          <div className="text-sm text-gray-600">Average Rating</div>
-        </div>
+      
         <div className="bg-purple-50 rounded-lg p-4 text-center">
           <div className="flex items-center justify-center w-8 h-8 bg-purple-100 rounded-full mx-auto mb-2">
             <Users className="w-4 h-4 text-purple-600" />
