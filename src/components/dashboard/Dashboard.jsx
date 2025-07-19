@@ -13,7 +13,7 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [notifications, setNotifications] = useState([]);
 
-  // Mock data - replace with actual API calls
+  // Mock data for now
   const [dashboardData, setDashboardData] = useState({
     upcomingSessions: [],
     myTickets: [],
@@ -148,34 +148,34 @@ const Dashboard = () => {
           <div className="space-y-6">
             <WelcomeSection user={user} />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <UpcomingSessions 
-                sessions={dashboardData.upcomingSessions} 
+              <UpcomingSessions
+                sessions={dashboardData.upcomingSessions}
                 loading={dashboardData.loading}
                 compact={true}
               />
-              <SupportTickets 
+              <SupportTickets
                 myTickets={dashboardData.myTickets}
                 claimedTickets={dashboardData.claimedTickets}
                 loading={dashboardData.loading}
                 compact={true}
               />
             </div>
-            <NotificationsFeed 
-              notifications={notifications.slice(0, 3)} 
+            <NotificationsFeed
+              notifications={notifications.slice(0, 3)}
               compact={true}
             />
           </div>
         );
       case 'sessions':
         return (
-          <UpcomingSessions 
-            sessions={dashboardData.upcomingSessions} 
+          <UpcomingSessions
+            sessions={dashboardData.upcomingSessions}
             loading={dashboardData.loading}
           />
         );
       case 'tickets':
         return (
-          <SupportTickets 
+          <SupportTickets
             myTickets={dashboardData.myTickets}
             claimedTickets={dashboardData.claimedTickets}
             loading={dashboardData.loading}
@@ -183,7 +183,7 @@ const Dashboard = () => {
         );
       case 'find-peers':
         return (
-          <FindPeers 
+          <FindPeers
             peers={dashboardData.availablePeers}
             loading={dashboardData.loading}
           />
@@ -220,11 +220,10 @@ const Dashboard = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
-                    activeTab === tab.id
-                      ? 'bg-navy text-white'
-                      : 'text-gray-600 hover:text-navy hover:bg-gray-100'
-                  }`}
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${activeTab === tab.id
+                    ? 'bg-navy text-white'
+                    : 'text-gray-600 hover:text-navy hover:bg-gray-100'
+                    }`}
                 >
                   <Icon className="w-4 h-4" />
                   <span>{tab.label}</span>
@@ -239,11 +238,15 @@ const Dashboard = () => {
         {/* Desktop Sidebar */}
         <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 lg:bg-white lg:border-r lg:border-gray-200">
           <div className="flex-1 flex flex-col min-h-0 pt-5 pb-4 overflow-y-auto">
-            <div className="flex items-center flex-shrink-0 px-4 mb-8">
+            {/* Logo and name */}
+            <div className="flex items-center flex-shrink-0 px-4 mb-2">
               <img
                 src="/alu-logo.png"
                 alt="ALU Logo"
-                className="w-8 h-8 mr-3"
+                className="w-12 h-4 mr-2"
+                style={{
+                  filter: 'drop-shadow(0 0 0 white) drop-shadow(0 0 1px black)',
+                }}
               />
               <h1 className="text-xl font-bold text-navy">StudyBuddy</h1>
             </div>
@@ -254,15 +257,13 @@ const Dashboard = () => {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md w-full text-left transition-colors ${
-                      activeTab === tab.id
-                        ? 'bg-navy text-white'
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-navy'
-                    }`}
+                    className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md w-full text-left transition-colors ${activeTab === tab.id
+                      ? 'bg-navy text-white'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-navy'
+                      }`}
                   >
-                    <Icon className={`mr-3 flex-shrink-0 h-5 w-5 ${
-                      activeTab === tab.id ? 'text-white' : 'text-gray-400 group-hover:text-navy'
-                    }`} />
+                    <Icon className={`mr-3 flex-shrink-0 h-5 w-5 ${activeTab === tab.id ? 'text-white' : 'text-gray-400 group-hover:text-navy'
+                      }`} />
                     {tab.label}
                     {tab.id === 'notifications' && notifications.filter(n => !n.read).length > 0 && (
                       <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-1">

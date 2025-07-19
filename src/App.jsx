@@ -2,9 +2,9 @@ import React from 'react';
 import { useState } from 'react';
 import { AuthProvider } from './components/auth/AuthContext';
 import { useAuth } from './components/auth/AuthContext';
-import Header from './components/Header';
-import LandingPage from './components/LandingPage';
-import Footer from './components/Footer';
+import Header from './components/landingPage/Header';
+import LandingPage from './components/landingPage/LandingPage';
+import Footer from './components/landingPage/Footer';
 import AuthPage from './components/auth/AuthPage';
 import Dashboard from './components/dashboard/Dashboard';
 import ProtectedRoute from './components/route/ProtectedRoute';
@@ -36,7 +36,7 @@ const AppContent = () => {
         <LandingPage onShowAuth={handleShowAuth} />
       </main>
       <Footer />
-      
+
       {/* Auth Modal */}
       {showAuthModal && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
