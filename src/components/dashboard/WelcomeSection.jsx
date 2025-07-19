@@ -68,7 +68,7 @@ const WelcomeSection = ({ user }) => {
               {getGreeting()}, {getUserName()}!
             </h1>
             <p className="text-gray-600">
-              {user?.major || 'Student'} {user?.studyYear && `• ${user.studyYear}`}
+              {user?.major || 'Stu'} {user?.studyYear && `• ${user.studyYear}`}
             </p>
             <p className="text-sm text-gray-500">
               {user?.email}
