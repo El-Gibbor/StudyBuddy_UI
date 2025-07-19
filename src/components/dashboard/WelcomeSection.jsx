@@ -6,8 +6,8 @@ const WelcomeSection = ({ user }) => {
 
   // Mock stats for now
   const stats = {
-    sessionsCompleted: --,
-    helpedStudents: --,
+    sessionsCompleted: '--',
+    helpedStudents: '--',
     averageRating: 4.7,
     upcomingThisWeek: 3
   };
