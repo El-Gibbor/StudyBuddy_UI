@@ -110,27 +110,27 @@ const Dashboard = () => {
         {
           id: 1,
           type: 'session_booked',
-          message: 'Session with Sarah Johnson confirmed for tomorrow at 2:00 PM',
+          message: `Welcome to StudyBuddy, ${user?.fullname || 'Student'}! Your account is ready.`,
           time: '2 hours ago',
           read: false
         },
         {
           id: 2,
           type: 'ticket_claimed',
-          message: 'Your ticket "React Hooks Help" was claimed by Alex Rivera',
+          message: 'Complete your profile to get better peer matches',
           time: '1 day ago',
           read: false
         },
         {
           id: 3,
           type: 'session_reminder',
-          message: 'Reminder: You have a session in 30 minutes',
+          message: 'Set your availability to start helping other students',
           time: '3 days ago',
           read: true
         }
       ]);
     }, 1000);
-  }, []);
+  }, [user]);
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: Calendar },

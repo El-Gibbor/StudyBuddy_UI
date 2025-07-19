@@ -60,7 +60,9 @@ const Header = ({ onShowAuth }) => {
                         {isAuthenticated ? (
                             <div className="flex items-center space-x-4">
                                 <span className="text-sm text-gray-300">
-                                    Welcome, {user?.fullName}
+                                    Welcome, {typeof user?.fullname === 'string' ? user.fullname.split(' ')[0] : 
+                                             typeof user?.fullname === 'object' ? user.fullname?.firstName || user.fullname?.first : 
+                                             user?.name?.split(' ')[0] || 'Student'}
                                 </span>
                                 <button
                                     onClick={handleSignOut}

@@ -2,22 +2,50 @@ import React, { useState } from 'react';
 import { Clock, Plus, X, Save } from 'lucide-react';
 
 const AvailabilityEditor = ({ user }) => {
-  const [availability, setAvailability] = useState({
-    Monday: ['9:00-12:00', '14:00-17:00'],
-    Tuesday: ['10:00-13:00'],
-    Wednesday: ['9:00-12:00', '15:00-18:00'],
-    Thursday: [],
-    Friday: ['13:00-16:00'],
-    Saturday: ['10:00-14:00'],
-    Sunday: []
+  // Initialize availability from user data or default empty schedule
+  const [availability, setAvailability] = useState(() => {
+    if (user?.availabilities && Array.isArray(user.availabilities)) {
+      // Convert API format to component format
+      const schedule = {
+        Monday: [],
+        Tuesday: [],
+        Wednesday: [],
+        Thursday: [],
+        Friday: [],
+        Saturday: [],
+        Sunday: []
+      };
+      
+      user.availabilities.forEach(slot => {
+        if (slot && typeof slot === 'string') {
+          const [day, timeRange] = slot.split('_');
+          if (schedule[day]) {
+            schedule[day].push(timeRange);
+          }
+        }
+      });
+      
+      return schedule;
+    }
+    
+    return {
+      Monday: [],
+      Tuesday: [],
+      Wednesday: [],
+      Thursday: [],
+      Friday: [],
+      Saturday: [],
+      Sunday: []
+    };
   });
 
-  const [supportAreas, setSupportAreas] = useState([
-    'JavaScript',
-    'React',
-    'Python',
-    'Data Structures'
-  ]);
+  // Initialize support areas from user data
+  const [supportAreas, setSupportAreas] = useState(() => {
+    if (user?.skills && Array.isArray(user.skills)) {
+      return user.skills;
+    }
+    return [];
+  });
 
   const [newSkill, setNewSkill] = useState('');
   const [newTimeSlot, setNewTimeSlot] = useState({ day: 'Monday', start: '', end: '' });
