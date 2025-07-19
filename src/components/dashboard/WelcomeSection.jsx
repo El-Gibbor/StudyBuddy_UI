@@ -4,10 +4,10 @@ import { Edit3, Star, Calendar, Users } from 'lucide-react';
 const WelcomeSection = ({ user }) => {
   const [showEditProfile, setShowEditProfile] = useState(false);
 
-  // Mock stats - replace with actual data
+  // Mock stats for now
   const stats = {
-    sessionsCompleted: 12,
-    helpedStudents: 8,
+    sessionsCompleted: --,
+    helpedStudents: --,
     averageRating: 4.7,
     upcomingThisWeek: 3
   };
