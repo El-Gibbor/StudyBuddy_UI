@@ -113,13 +113,6 @@ const WelcomeSection = ({ user }) => {
           <div className="text-2xl font-bold text-orange-600">{stats.upcomingThisWeek}</div>
           <div className="text-sm text-gray-600">This Week</div>
         </div>
-        <div className="bg-green-50 rounded-lg p-4 text-center">
-          <div className="flex items-center justify-center w-8 h-8 bg-green-100 rounded-full mx-auto mb-2">
-            <Star className="w-4 h-4 text-green-600" />
-          </div>
-          <div className="text-2xl font-bold text-green-600">{user?.role || 'BOTH'}</div>
-          <div className="text-sm text-gray-600">Role</div>
-        </div>
       </div>
 
       {/* Edit Profile Modal */}
