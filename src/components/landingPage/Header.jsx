@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState } from 'react';
-import { useAuth } from './auth/AuthContext';
-import AuthPage from './auth/AuthPage';
+import { useAuth } from '../auth/AuthContext';
+import AuthPage from '../auth/AuthPage';
 
 const Header = ({ onShowAuth }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -34,11 +34,16 @@ const Header = ({ onShowAuth }) => {
                             <img
                                 src="/alu-logo.png"
                                 alt="ALU Logo"
-                                className="w-100 h-100 object-contain"
+                                className="w-12 h-4"
+                                style={{
+                                    filter: 'drop-shadow(0 0 0 white) drop-shadow(0 0 1px black)',
+                                }}
                             />
                         </div>
                         <div>
-                            <h1 className="text-lg sm:text-xl lg:text-xl font-bold text-white">StudyBuddy</h1>
+                            <h1 className="text-lg sm:text-xl lg:text-xl font-bold text-white" style={{
+                                filter: 'drop-shadow(0 0 0 white) drop-shadow(0 0 1px red)',
+                            }}>StudyBuddy</h1>
                         </div>
                     </div>
 
@@ -60,9 +65,9 @@ const Header = ({ onShowAuth }) => {
                         {isAuthenticated ? (
                             <div className="flex items-center space-x-4">
                                 <span className="text-sm text-gray-300">
-                                    Welcome, {typeof user?.fullname === 'string' ? user.fullname.split(' ')[0] : 
-                                             typeof user?.fullname === 'object' ? user.fullname?.firstName || user.fullname?.first : 
-                                             user?.name?.split(' ')[0] || 'Student'}
+                                    Welcome, {typeof user?.fullname === 'string' ? user.fullname.split(' ')[0] :
+                                        typeof user?.fullname === 'object' ? user.fullname?.firstName || user.fullname?.first :
+                                            user?.name?.split(' ')[0] || 'Student'}
                                 </span>
                                 <button
                                     onClick={handleSignOut}
