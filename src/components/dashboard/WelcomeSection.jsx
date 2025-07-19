@@ -35,7 +35,7 @@ const WelcomeSection = ({ user }) => {
               {getGreeting()}, {user?.fullName?.split(' ')[0] || 'Student'}!
             </h1>
             <p className="text-gray-600">
-              {user?.major} • {user?.studyYear}
+              {user?.major || 'Devops'} • {user?.studyYear}
             </p>
             {user?.bio && (
               <p className="text-sm text-gray-500 mt-1 max-w-md">
