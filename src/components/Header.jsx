@@ -62,7 +62,7 @@ const Header = ({ onShowAuth }) => {
                                 <span className="text-sm text-gray-300">
                                     Welcome, {typeof user?.fullname === 'string' ? user.fullname.split(' ')[0] : 
                                              typeof user?.fullname === 'object' ? user.fullname?.firstName || user.fullname?.first : 
-                                             user?.name?.split(' ')[0] || 'Student'}
+                                             user?.name?.split(' ')[0] || 'there'}
                                 </span>
                                 <button
                                     onClick={handleSignOut}
