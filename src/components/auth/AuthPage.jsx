@@ -46,65 +46,6 @@ const AuthPage = ({ defaultMode = 'signin', onSuccess }) => {
 
   ];
 
-  const timeSlots = [
-    {
-      day: 'Monday',
-      slots: [
-        { time: '6:00 - 12:00', value: 'Monday_6:00-12:00' },
-        { time: '12:00 - 17:00', value: 'Monday_12:00-17:00' },
-        { time: '17:00 - 23:59', value: 'Monday_17:00-23:59' }
-      ]
-    },
-    {
-      day: 'Tuesday',
-      slots: [
-        { time: '6:00 - 12:00', value: 'Tuesday_6:00-12:00' },
-        { time: '12:00 - 17:00', value: 'Tuesday_12:00-17:00' },
-        { time: '17:00 - 23:59', value: 'Tuesday_17:00-23:59' }
-      ]
-    },
-    {
-      day: 'Wednesday',
-      slots: [
-        { time: '6:00 - 12:00', value: 'Wednesday_6:00-12:00' },
-        { time: '12:00 - 17:00', value: 'Wednesday_12:00-17:00' },
-        { time: '17:00 - 23:59', value: 'Wednesday_17:00-23:59' }
-      ]
-    },
-    {
-      day: 'Thursday',
-      slots: [
-        { time: '6:00 - 12:00', value: 'Thursday_6:00-12:00' },
-        { time: '12:00 - 17:00', value: 'Thursday_12:00-17:00' },
-        { time: '17:00 - 23:59', value: 'Thursday_17:00-23:59' }
-      ]
-    },
-    {
-      day: 'Friday',
-      slots: [
-        { time: '6:00 - 12:00', value: 'Friday_6:00-12:00' },
-        { time: '12:00 - 17:00', value: 'Friday_12:00-17:00' },
-        { time: '17:00 - 23:59', value: 'Friday_17:00-23:59' }
-      ]
-    },
-    {
-      day: 'Saturday',
-      slots: [
-        { time: '6:00 - 12:00', value: 'Saturday_6:00-12:00' },
-        { time: '12:00 - 17:00', value: 'Saturday_12:00-17:00' },
-        { time: '17:00 - 23:59', value: 'Saturday_17:00-23:59' }
-      ]
-    },
-    {
-      day: 'Sunday',
-      slots: [
-        { time: '6:00 - 12:00', value: 'Sunday_6:00-12:00' },
-        { time: '12:00 - 17:00', value: 'Sunday_12:00-17:00' },
-        { time: '17:00 - 23:59', value: 'Sunday_17:00-23:59' }
-      ]
-    }
-  ];
-
   // Password strength calculation
   useEffect(() => {
     const calculatePasswordStrength = (password) => {
@@ -156,15 +97,6 @@ const AuthPage = ({ defaultMode = 'signin', onSuccess }) => {
     setFormData(prev => ({
       ...prev,
       skills: prev.skills.filter(module => module !== moduleToRemove)
-    }));
-  };
-
-  const toggleTimeSlot = (slot) => {
-    setFormData(prev => ({
-      ...prev,
-      availableTimeSlots: prev.availableTimeSlots.includes(slot)
-        ? prev.availableTimeSlots.filter(s => s !== slot)
-        : [...prev.availableTimeSlots, slot]
     }));
   };
 
@@ -578,7 +510,7 @@ const AuthPage = ({ defaultMode = 'signin', onSuccess }) => {
                   {/* schoolName */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      schoolName *
+                      University Name
                     </label>
                     <input
                       type="text"
@@ -638,14 +570,7 @@ const AuthPage = ({ defaultMode = 'signin', onSuccess }) => {
                   </div>
 
                   {/* Study Buddy Specific Fields */}
-                  <div className="space-y-4 border-t pt-4">
-                    <h3 className="text-lg font-medium text-gray-900 flex items-center">
-                      <GraduationCap className="w-5 h-5 mr-2" />
-                      Helper Information (Optional)
-                    </h3>
-                    <p className="text-sm text-gray-600 mb-4">
-                      Complete this section if you want to help other students. You can always update this information later in your profile.
-                    </p>
+                  {/* <div className="space-y-4 border-t pt-4"> */}
 
                     {/* skills */}
                     {/* <div>
@@ -687,37 +612,7 @@ const AuthPage = ({ defaultMode = 'signin', onSuccess }) => {
                         ))}
                       </div>
                     </div> */}
-
-                    {/* Available Time Slots */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-3">
-                        Available Time Slots (Optional)
-                      </label>
-                      <p className="text-xs text-gray-500 mb-3">
-                        Select when you're available to help other students. This helps with scheduling study sessions.
-                      </p>
-                      <div className="space-y-4 max-h-64 overflow-y-auto">
-                        {timeSlots.map((daySlot) => (
-                          <div key={daySlot.day} className="border rounded-lg p-3 bg-gray-50">
-                            <h4 className="font-medium text-gray-900 mb-2">{daySlot.day}</h4>
-                            <div className="flex space-x-4">
-                              {daySlot.slots.map((slot) => (
-                                <label key={slot.value} className="flex flex-col items-center space-y-1 text-xs cursor-pointer">
-                                  <input
-                                    type="checkbox"
-                                    checked={formData.availableTimeSlots.includes(slot.value)}
-                                    onChange={() => toggleTimeSlot(slot.value)}
-                                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                  />
-                                  <span className="text-gray-700 text-center whitespace-nowrap">{slot.time}</span>
-                                </label>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
+                  {/* </div> */}
                 </div>
               )}
 
