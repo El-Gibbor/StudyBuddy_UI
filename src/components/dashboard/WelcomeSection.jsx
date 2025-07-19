@@ -20,7 +20,7 @@ const WelcomeSection = ({ user }) => {
 
   // Extract user name - handle both string and object formats
   const getUserName = () => {
-    if (!user) return 'there';
+    if (!user) return 'Student';
     
     if (typeof user.fullname === 'string') {
       return user.fullname.split(' ')[0];
@@ -30,12 +30,12 @@ const WelcomeSection = ({ user }) => {
       return user.fullname.firstName || user.fullname.first || 'Student';
     }
     
-    return user.name?.split(' ')[0] || 'there';
+    return user.name?.split(' ')[0] || 'Student';
   };
 
   // Get full name for display
   const getFullName = () => {
-    if (!user) return '';
+    if (!user) return 'Student';
     
     if (typeof user.fullname === 'string') {
       return user.fullname;
@@ -43,10 +43,10 @@ const WelcomeSection = ({ user }) => {
     
     if (typeof user.fullname === 'object' && user.fullname) {
       const { firstName, lastName, first, last } = user.fullname;
-      return `${firstName || first || ''} ${lastName || last || ''}`.trim();
+      return `${firstName || first || ''} ${lastName || last || ''}`.trim() || 'Student';
     }
     
-    return user.name || '';
+    return user.name || 'Student';
   };
 
   return (
@@ -68,7 +68,7 @@ const WelcomeSection = ({ user }) => {
               {getGreeting()}, {getUserName()}!
             </h1>
             <p className="text-gray-600">
-              {user?.major || ''} {user?.studyYear && `• ${user.studyYear}`}
+              {user?.major || 'Student'} {user?.studyYear && `• ${user.studyYear}`}
             </p>
             <p className="text-sm text-gray-500">
               {user?.email}
