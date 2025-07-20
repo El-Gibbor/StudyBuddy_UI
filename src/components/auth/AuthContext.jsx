@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import authService from '../../services/auth/auth.service';
+import profileService from '../../services/profile/profile.service';
 
 const AuthContext = createContext();
 
@@ -135,6 +136,35 @@ export const AuthProvider = ({ children }) => {
         setIsAuthenticated(false);
     };
 
+    const updateUserProfile = async (profileData) => {
+        try {
+            if (!user?.id) {
+                throw new Error('User ID not found');
+            }
+
+            const response = await profileService.updateProfile(user.id, profileData);
+            
+            // Update the user state with new data
+            const updatedUser = {
+                ...user,
+                fullname: {
+                    ...user.fullname,
+                    name: profileData.name,
+                    major: profileData.major,
+                    studyYear: profileData.studyYear,
+                    bio: profileData.bio
+                }
+            };
+            
+            setUser(updatedUser);
+            localStorage.setItem('userData', JSON.stringify(updatedUser));
+            
+            return { success: true, data: response };
+        } catch (error) {
+            console.error('Profile update error:', error);
+            throw new Error(error.message || 'Failed to update profile');
+        }
+    };
     const value = {
         user,
         isAuthenticated,
@@ -144,6 +174,7 @@ export const AuthProvider = ({ children }) => {
         resendConfirmationCode,
         login,
         signOut,
+        updateUserProfile,
     };
 
     return (

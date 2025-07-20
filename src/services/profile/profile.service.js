@@ -4,16 +4,23 @@ class ProfileService {
   async updateProfile(userId, profileData) {
     try {
       const response = await axiosClient.patch(`/user/${userId}`, {
-        fullname: {
-          name: profileData.name,
-          major: profileData.major,
-          studyYear: profileData.studyYear,
-          bio: profileData.bio
-        }
+        fullname: profileData.name,
+        major: profileData.major,
+        studyYear: profileData.studyYear,
+        bio: profileData.bio
       });
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Failed to update profile');
+    }
+  }
+
+  async getUserProfile(userId) {
+    try {
+      const response = await axiosClient.get(`/user/${userId}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch user profile');
     }
   }
 }
