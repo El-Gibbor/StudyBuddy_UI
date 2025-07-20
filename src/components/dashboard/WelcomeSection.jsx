@@ -1,9 +1,15 @@
 import React, { useState } from 'react';
 import { Edit3, Star, Calendar, Users } from 'lucide-react';
 import EditProfileModal from './EditProfileModal';
+import profileService from '../../services/profile/profile.service';
+import { useAuth } from '../auth/AuthContext';
 
 const WelcomeSection = ({ user }) => {
   const [showEditProfile, setShowEditProfile] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [updateError, setUpdateError] = useState('');
+  const [updateSuccess, setUpdateSuccess] = useState('');
+  const { user: authUser, setUser } = useAuth();
 
   // Mock stats for now
   const stats = {
@@ -45,12 +51,46 @@ const WelcomeSection = ({ user }) => {
 
   const handleSaveProfile = async (formData) => {
     try {
+      setIsUpdating(true);
+      setUpdateError('');
+      setUpdateSuccess('');
+      
       console.log('Saving profile:', formData);
-      // Here you would typically make an API call to save the profile
-      // await updateUserProfile(formData);
+      
+      // Get user ID from the authenticated user
+      const userId = user?.id || user?.userId;
+      
+      if (!userId) {
+        throw new Error('User ID not found');
+      }
+      
+      // Prepare the profile data for the API
+      const profileData = {
+        name: formData.name,
+        major: formData.major,
+        studyYear: formData.studyYear,
+        bio: formData.bio
+      };
+      
+      // Call the profile service to update the profile
+      const response = await profileService.updateProfile(userId, profileData);
+      
+      console.log('Profile updated successfully:', response);
+      
+      // Update the local user state if needed
+      // This would depend on how your auth context manages user data
+      
+      setUpdateSuccess('Profile updated successfully!');
       setShowEditProfile(false);
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setUpdateSuccess(''), 3000);
+      
     } catch (error) {
       console.error('Failed to save profile:', error);
+      setUpdateError(error.message || 'Failed to update profile');
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -142,12 +182,26 @@ const WelcomeSection = ({ user }) => {
         </div>
       </div>
 
+      {/* Success/Error Messages */}
+      {updateSuccess && (
+        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-md">
+          <p className="text-sm text-green-600">{updateSuccess}</p>
+        </div>
+      )}
+      
+      {updateError && (
+        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
+          <p className="text-sm text-red-600">{updateError}</p>
+        </div>
+      )}
+
       {/* Edit Profile Modal */}
       <EditProfileModal
         isOpen={showEditProfile}
         onClose={() => setShowEditProfile(false)}
         user={user}
         onSave={handleSaveProfile}
+        isLoading={isUpdating}
       />
     </div>
   );
