@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Edit3, Star, Calendar, Users, Plus, Trash2, Clock, X } from 'lucide-react';
+import { Plus, Trash2, Clock, X } from 'lucide-react';
 
 const AvailabilityEditor = ({ availabilities = [], onChange, supportAreas = [], onSupportAreasChange }) => {
   const [localAvailabilities, setLocalAvailabilities] = useState(availabilities);
@@ -15,14 +15,6 @@ const AvailabilityEditor = ({ availabilities = [], onChange, supportAreas = [], 
     { value: 5, label: 'Friday', short: 'Fri' },
     { value: 6, label: 'Saturday', short: 'Sat' }
   ];
-
-  const timeSlots = [];
-  for (let hour = 6; hour < 22; hour++) {
-    for (let minute = 0; minute < 60; minute += 30) {
-      const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-      timeSlots.push(timeString);
-    }
-  }
 
   const addAvailability = () => {
     const newAvailability = {
@@ -112,20 +104,20 @@ const AvailabilityEditor = ({ availabilities = [], onChange, supportAreas = [], 
 
       {/* Detailed Schedule */}
       <div>
-        <h4 className="text-md font-medium text-gray-700 mb-2">Time Slots</h4>
+        <h4 className="text-md font-medium text-gray-700 mb-1">Time Slots</h4>
 
         {localAvailabilities.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mb-2">
             {localAvailabilities.map((availability, index) => (
               <div key={index} className="bg-gray-50 p-2 rounded-lg border hover:shadow-md transition-shadow">
                 <div className="space-y-1">
-                  <div className="grid grid-cols-4 gap-2 items-end">
+                  <div className="grid grid-cols-3 gap-2 items-end">
                     <div>
                       <label className="block font-medium text-xs text-gray-700 mb-1">Day</label>
                       <select
                         value={availability.dayOfWeek}
                         onChange={(e) => updateAvailability(index, 'dayOfWeek', e.target.value)}
-                        className="w-full px-2 py-1.5 font-medium text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        className="px-2 py-1.5 font-medium text-xs border border-gray-300 rounded-sm"
                       >
                         {daysOfWeek.map(day => (
                           <option key={day.value} value={day.value}>{day.label}</option>
@@ -135,28 +127,72 @@ const AvailabilityEditor = ({ availabilities = [], onChange, supportAreas = [], 
 
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">Start Time</label>
-                      <select
-                        value={availability.startTime}
-                        onChange={(e) => updateAvailability(index, 'startTime', e.target.value)}
-                        className="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                      >
-                        {timeSlots.map(time => (
-                          <option key={time} value={time}>{time}</option>
-                        ))}
-                      </select>
+                      <div className="flex items-center gap-1">
+                        <input
+                          type="number"
+                          min="0"
+                          max="23"
+                          value={availability.startTime ? availability.startTime.split(':')[0] : '09'}
+                          onChange={(e) => {
+                            const hour = e.target.value.padStart(2, '0');
+                            const currentTime = availability.startTime || '09:00';
+                            const minute = currentTime.split(':')[1] || '00';
+                            updateAvailability(index, 'startTime', `${hour}:${minute}`);
+                          }}
+                          className="w-12 px-1 py-1.5 text-xs text-center border border-gray-300 rounded-sm outline-gray-500"
+                          placeholder="HH"
+                        />
+                        <span className="text-xs text-gray-500">:</span>
+                        <input
+                          type="number"
+                          min="0"
+                          max="59"
+                          value={availability.startTime ? availability.startTime.split(':')[1] : '00'}
+                          onChange={(e) => {
+                            const currentTime = availability.startTime || '09:00';
+                            const hour = currentTime.split(':')[0] || '09';
+                            const minute = e.target.value.padStart(2, '0');
+                            updateAvailability(index, 'startTime', `${hour}:${minute}`);
+                          }}
+                          className="w-12 px-1 py-1.5 text-xs text-center border border-gray-300 rounded-sm outline-gray-500"
+                          placeholder="MM"
+                        />
+                      </div>
                     </div>
 
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">End Time</label>
-                      <select
-                        value={availability.endTime}
-                        onChange={(e) => updateAvailability(index, 'endTime', e.target.value)}
-                        className="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                      >
-                        {timeSlots.filter(time => time > availability.startTime).map(time => (
-                          <option key={time} value={time}>{time}</option>
-                        ))}
-                      </select>
+                      <div className="flex items-center gap-1">
+                        <input
+                          type="number"
+                          min="0"
+                          max="23"
+                          value={availability.endTime ? availability.endTime.split(':')[0] : '10'}
+                          onChange={(e) => {
+                            const hour = e.target.value.padStart(2, '0');
+                            const currentTime = availability.endTime || '10:00';
+                            const minute = currentTime.split(':')[1] || '00';
+                            updateAvailability(index, 'endTime', `${hour}:${minute}`);
+                          }}
+                          className="w-12 px-1 py-1.5 text-xs text-center border border-gray-300 rounded-sm outline-gray-500"
+                          placeholder="HH"
+                        />
+                        <span className="text-xs text-gray-500">:</span>
+                        <input
+                          type="number"
+                          min="0"
+                          max="59"
+                          value={availability.endTime ? availability.endTime.split(':')[1] : '00'}
+                          onChange={(e) => {
+                            const currentTime = availability.endTime || '10:00';
+                            const hour = currentTime.split(':')[0] || '10';
+                            const minute = e.target.value.padStart(2, '0');
+                            updateAvailability(index, 'endTime', `${hour}:${minute}`);
+                          }}
+                          className="w-12 px-1 py-1.5 text-xs text-center border border-gray-300 rounded-sm outline-gray-500"
+                          placeholder="MM"
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -182,7 +218,7 @@ const AvailabilityEditor = ({ availabilities = [], onChange, supportAreas = [], 
         <div className="flex justify-start">
           <button
             onClick={addAvailability}
-            className="flex items-center gap-2 px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-sm transition-colors shadow-sm"
+            className="flex items-center gap-2 px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors shadow-sm"
           >
             <Plus className="w-4 h-4" />
             Add Slot
@@ -220,14 +256,14 @@ const AvailabilityEditor = ({ availabilities = [], onChange, supportAreas = [], 
 
           {/* Add New Skill */}
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Add New Skill</h3>
+            <h3 className="text-md font-medium text-gray-900 mb-1">Add new Skill/Module</h3>
             <div className="flex space-x-2">
               <input
                 type="text"
                 value={newSkill}
                 onChange={(e) => setNewSkill(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && addSkill()}
-                placeholder="e.g., Machine Learning, Database Design"
+                placeholder="e.g., Data Structure and Algorithn, MySQL Databases"
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-navy focus:border-transparent"
               />
               <button
@@ -243,7 +279,7 @@ const AvailabilityEditor = ({ availabilities = [], onChange, supportAreas = [], 
             <div className="mt-4">
               <h4 className="text-sm font-medium text-gray-700 mb-2">Suggested Skills</h4>
               <div className="flex flex-wrap gap-2">
-                {['Node.js', 'MongoDB', 'Machine Learning', 'UI/UX Design', 'DevOps', 'Mobile Development'].map(skill => (
+                {['Web Infrastructure', 'Frontend development', 'Linux/Shell Scripting', 'Enterprise Web Development', 'DevOps', 'Mobile Development'].map(skill => (
                   <button
                     key={skill}
                     onClick={() => {
