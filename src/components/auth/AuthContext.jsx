@@ -142,18 +142,21 @@ export const AuthProvider = ({ children }) => {
                 throw new Error('User ID not found');
             }
 
-            const response = await profileService.updateProfile(user.id, profileData);
+            // Construct complete fullname object by merging existing data with updates
+            const completeFullnameData = {
+                ...user.fullname, // Preserve existing fullname properties
+                name: profileData.name,
+                major: profileData.major,
+                studyYear: profileData.studyYear,
+                bio: profileData.bio
+            };
+
+            const response = await profileService.updateProfile(user.id, { fullname: completeFullnameData });
             
             // Update the user state with new data
             const updatedUser = {
                 ...user,
-                fullname: {
-                    ...user.fullname,
-                    name: profileData.name,
-                    major: profileData.major,
-                    studyYear: profileData.studyYear,
-                    bio: profileData.bio
-                }
+                fullname: completeFullnameData
             };
             
             setUser(updatedUser);
