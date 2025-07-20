@@ -43,6 +43,16 @@ const WelcomeSection = ({ user }) => {
       `https://ui-avatars.com/api/?name=${encodeURIComponent(getFullName())}&background=6366f1&color=fff&size=64`;
   };
 
+  const handleSaveProfile = async (formData) => {
+    try {
+      console.log('Saving profile:', formData);
+      // Here you would typically make an API call to save the profile
+      // await updateUserProfile(formData);
+      setShowEditProfile(false);
+    } catch (error) {
+      console.error('Failed to save profile:', error);
+    }
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -67,25 +77,25 @@ const WelcomeSection = ({ user }) => {
               {getGreeting()}, {getUserName()}!
             </h1>
             <p className="text-gray-600">
-              {user?.fullname?.major || 'No major specified'} {user?.fullname?.studyYear ? `• ${user.fullname.studyYear}` : ''}
+              {user.fullname?.major} {`• ${user.fullname?.studyYear}`}
             </p>
             <p className="text-sm text-gray-500">
               {user?.email}
             </p>
-            {user?.fullname?.bio && (
+            {user.fullname?.bio && (
               <p className="text-sm text-gray-500 mt-1 max-w-md">
                 {user.fullname?.bio}
               </p>
             )}
             <p className="text-xs text-gray-400 mt-1">
-              {user?.fullname?.schoolName || 'African Leadership University'}
+              {user.fullname?.schoolName || 'African Leadership University'}
             </p>
           </div>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
-          <div className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-medium ${user?.fullname?.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+          <div className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-medium ${user.fullname?.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
             }`}>
-            {user?.fullname?.status || 'INACTIVE'}
+            {user.fullname?.status || 'INACTIVE'}
           </div>
           <button
             onClick={() => setShowEditProfile(true)}
@@ -137,6 +147,7 @@ const WelcomeSection = ({ user }) => {
         isOpen={showEditProfile}
         onClose={() => setShowEditProfile(false)}
         user={user}
+        onSave={handleSaveProfile}
       />
     </div>
   );
