@@ -94,8 +94,10 @@ const WelcomeSection = ({ user }) => {
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6">
-        <div className="flex items-center space-x-4 mb-4 sm:mb-0">
-          <div className="relative">
+        {/* Mobile: Stack avatar on top, Desktop: Side by side */}
+        <div className="flex flex-col sm:flex-row items-center sm:items-center w-full sm:w-auto mb-4 sm:mb-0">
+          {/* Avatar section */}
+          <div className="relative mb-4 sm:mb-0 sm:mr-4">
             <img
               src={getProfileImage()}
               alt={getFullName()}
@@ -109,7 +111,9 @@ const WelcomeSection = ({ user }) => {
               </div>
             )}
           </div>
-          <div>
+
+          {/* User info section */}
+          <div className="text-center sm:text-left">
             <h1 className="text-2xl font-bold text-gray-900">
               {getGreeting()}, {getUserName()}!
             </h1>
@@ -129,14 +133,16 @@ const WelcomeSection = ({ user }) => {
             )}
           </div>
         </div>
-        <div className="flex flex-col sm:flex-row gap-2">
-          <div className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-medium ${user.fullname?.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+
+        {/* Edit button and status */}
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <div className={`inline-flex items-center justify-center px-3 py-1 rounded-md text-xs font-medium ${user.fullname?.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
             }`}>
             {user.fullname?.status || 'INACTIVE'}
           </div>
           <button
             onClick={() => setShowEditProfile(true)}
-            className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors"
+            className="flex items-center justify-center space-x-2 px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md text-sm font-medium"
           >
             <Edit3 className="w-4 h-4" />
             <span>Edit Profile</span>

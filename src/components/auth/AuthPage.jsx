@@ -262,13 +262,23 @@ const AuthPage = ({ defaultMode = 'signin', onSuccess }) => {
           <div className="flex flex-col lg:flex-row">
             {/* Left Panel - Branding */}
             <div className="lg:w-1/2 bg-gradient-to-br from-blue-900 to-blue-800 p-8 lg:p-12 text-white">
-              <div className="flex items-center space-x-2 mb-5">
-                <img
-                  src="/alu-logo.png"
-                  alt="ALU Logo"
-                  className="w-12 object-contain"
-                />
-                <h1 className="text-xl font-bold">StudyBuddy</h1>
+
+              <div className="flex items-center mb-4 mt-8 space-x-2">
+                <div className="w-12 bg-gradient-to-br flex items-center justify-center">
+                  <img
+                    src="/alu-logo.png"
+                    alt="ALU Logo"
+                    className="w-12 h-4"
+                    style={{
+                      filter: 'drop-shadow(0 0 0 white) drop-shadow(0 0 1px black)',
+                    }}
+                  />
+                </div>
+                <div>
+                  <h1 className="text-lg sm:text-xl lg:text-xl font-bold text-white" style={{
+                    filter: 'drop-shadow(0 0 0 white) drop-shadow(0 0 1px red)',
+                  }}>StudyBuddy</h1>
+                </div>
               </div>
 
               <div className="space-y-6">

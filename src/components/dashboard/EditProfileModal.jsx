@@ -1,13 +1,7 @@
 import React, { useState } from 'react';
-import { Edit3, User, BookOpen, Calendar, Mail, Phone } from 'lucide-react';
+import { Edit3, User, BookOpen, Calendar, Mail, Phone, X, Check } from 'lucide-react';
 
-const EditProfileModal = ({
-  isOpen,
-  onClose,
-  user,
-  onSave,
-  isLoading = false
-}) => {
+const EditProfileModal = ({ isOpen, onClose, user, onSave, isLoading = false }) => {
   const [formData, setFormData] = useState({
     name: user.fullname?.name || '',
     major: user.fullname?.major || '',
@@ -16,191 +10,174 @@ const EditProfileModal = ({
     role: 'Student (Buddy/Learner)'
   });
 
-  // Extract user name
   const getFullName = () => {
-    if (!user) return 'Student';
-    if (user.fullname?.name) {
-      return user.fullname.name;
-    }
-    return 'Student';
+    return user?.fullname?.name || 'Student';
   };
 
-  // Get profile image with fallback
   const getProfileImage = () => {
     return user?.avatarUrl ||
       `https://ui-avatars.com/api/?name=${encodeURIComponent(getFullName())}&background=6366f1&color=fff&size=64`;
   };
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleSave = () => {
-    // Don't close the modal immediately - let the parent handle it after successful save
     onSave(formData);
   };
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div className="fixed inset-0 transition-opacity" aria-hidden="true">
-          <div className="absolute inset-0 bg-gray-500 opacity-75" onClick={onClose}></div>
-        </div>
-        <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+  return (<div className="fixed inset-0 z-50 flex items-center justify-center p-4"> <div className="fixed inset-0 bg-black bg-opacity-50" onClick={onClose}></div>
 
-          {/* Modal Header */}
-          <div className="bg-white px-4 pt-5 pb-4 sm:p-6 border-b border-gray-200">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-medium text-gray-900">Edit Profile</h3>
+    ```
+    <div className="relative bg-white rounded-md shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col md:flex-row">
+      <button
+        onClick={onClose}
+        className="absolute top-4 right-4 z-10 p-2 text-gray-500 hover:text-gray-600 bg-white rounded-full shadow-lg"
+      >
+        <X className="w-5 h-5" />
+      </button>
+
+      <div className="bg-gradient-to-br from-blue-600 to-blue-800 text-white p-6 md:p-8 flex flex-col justify-center md:w-1/2">
+        <div className="mb-6">
+          <div className="flex items-center mb-6 space-x-2">
+            <img
+              src="/alu-logo.png"
+              alt="ALU Logo"
+              className="w-12 h-4"
+              style={{ filter: 'drop-shadow(0 0 0 white) drop-shadow(0 0 1px black)' }}
+            />
+            <h1 className="text-lg font-bold text-white" style={{ filter: 'drop-shadow(0 0 0 white) drop-shadow(0 0 1px red)' }}>
+              StudyBuddy
+            </h1>
+          </div>
+          <h1 className="text-xl font-bold mb-1">Update Your Profile</h1>
+          <p className="text-blue-100 text-sm">
+            Keep your information current to enhance your learning experience and connect with peers effectively.
+          </p>
+        </div>
+
+        <div className="space-y-3 text-sm">
+          {['Peer-to-peer learning support', 'Enhanced peer matching', 'Academic excellence together'].map((text, i) => (
+            <div key={i} className="flex items-center">
+              <div className="bg-yellow-400 rounded-full p-2 mr-3">
+                <Check className="w-5 h-5 text-blue-800" />
+              </div>
+              <span>{text}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="p-6 md:p-8 md:w-1/2 overflow-y-auto">
+        <div className="max-w-md mx-auto">
+          <div className="text-center mb-6">
+            <div className="relative inline-block">
               <img
                 src={getProfileImage()}
                 alt={getFullName()}
-                className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
+                className="w-20 h-20 rounded-full object-cover border-4 border-blue-100"
               />
+              <div className="absolute -bottom-1 -right-1 bg-blue-600 rounded-full p-1">
+                <User className="w-4 h-4 text-white" />
+              </div>
             </div>
+            <h3 className="text-xl font-semibold text-gray-900 mt-3">{getFullName()}</h3>
           </div>
 
-          {/* Modal Content */}
-          <div className="bg-white px-4 pt-5 pb-4 sm:p-6 max-h-96 overflow-y-auto">
-            <div className="space-y-4">
-              {/* Name */}
-              <div className=''>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <User className="w-4 h-4 inline mr-2" />
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-gray-500"
-                  placeholder="Enter your full name"
-                />
+          <div className="space-y-5">
+            {[{ label: 'Full Name *', value: formData.name, field: 'name', icon: User },
+            { label: 'Major *', value: formData.major, field: 'major', icon: BookOpen }].map(({ label, value, field, icon: Icon }, i) => (
+              <div key={i}>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
+                <div className="relative">
+                  <Icon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="text"
+                    value={value}
+                    onChange={(e) => handleInputChange(field, e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                    placeholder={`Enter your ${field}`}
+                  />
+                </div>
               </div>
+            ))}
 
-              {/* Major */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <BookOpen className="w-4 h-4 inline mr-2" />
-                  Major
-                </label>
-                <input
-                  type="text"
-                  value={formData.major}
-                  onChange={(e) => handleInputChange('major', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-gray-500"
-                  placeholder="Enter your major"
-                />
-              </div>
-
-              {/* Study Year */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <Calendar className="w-4 h-4 inline mr-2" />
-                  Study Year
-                </label>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Study Year *</label>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <select
                   value={formData.studyYear}
                   onChange={(e) => handleInputChange('studyYear', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-gray-500"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white"
                 >
                   <option value="">Select study year</option>
-                  <option value="Year 1, trimester 1">Year 1, Trimester 1</option>
-                  <option value="Year 1, trimester 2">Year 1, Trimester 2</option>
-                  <option value="Year 1, trimester 3">Year 1, Trimester 3</option>
-                  <option value="Year 2, trimester 1">Year 2, Trimester 1</option>
-                  <option value="Year 2, trimester 2">Year 2, Trimester 2</option>
-                  <option value="Year 2, trimester 3">Year 2, Trimester 3</option>
-                  <option value="Year 3, trimester 1">Year 3, Trimester 1</option>
-                  <option value="Year 3, trimester 2">Year 3, Trimester 2</option>
-                  <option value="Year 3, trimester 3">Year 3, Trimester 3</option>
-                  <option value="Graduate">Graduate</option>
+                  {[1, 2, 3].flatMap(y => [1, 2, 3].map(t => `Year ${y}, Trimester ${t}`)).concat('Graduate').map((val, i) => (
+                    <option key={i} value={val}>{val}</option>
+                  ))}
                 </select>
               </div>
+            </div>
 
-              {/* Role */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Role
-                </label>
-                <input
-                  type="text"
-                  value={formData.role}
-                  disabled
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500 "
-                />
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
+              <input
+                type="text"
+                value={formData.role}
+                disabled
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-500"
+              />
+            </div>
 
-              {/* Bio */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Bio
-                </label>
-                <textarea
-                  value={formData.bio}
-                  onChange={(e) => handleInputChange('bio', e.target.value)}
-                  rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-gray-500"
-                  placeholder="Tell us about yourself..."
-                />
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Bio</label>
+              <textarea
+                value={formData.bio}
+                onChange={(e) => handleInputChange('bio', e.target.value)}
+                rows={3}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none"
+                placeholder="Tell us about yourself..."
+              />
+            </div>
 
-              {/* Contact Info (Read-only) */}
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <Mail className="w-4 h-4 inline mr-2" />
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    value={user?.email || ''}
-                    disabled
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <Phone className="w-4 h-4 inline mr-2" />
-                    Phone
-                  </label>
+            {[{ label: 'Email', value: user?.email || '', icon: Mail },
+            { label: 'Phone', value: user?.phone || 'Not provided', icon: Phone }].map(({ label, value, icon: Icon }, i) => (
+              <div key={i}>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
+                <div className="relative">
+                  <Icon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
                     type="text"
-                    value={user?.phone || 'Not provided'}
+                    value={value}
                     disabled
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-500"
                   />
                 </div>
               </div>
-            </div>
+            ))}
           </div>
 
-          {/* Modal Footer */}
-          <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+          <div className="flex flex-col gap-3 mt-8">
             <button
               onClick={handleSave}
               disabled={isLoading}
-              className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed sm:ml-3 sm:w-auto sm:text-sm"
+              className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             >
               {isLoading ? (
                 <div className="flex items-center">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
                   Saving...
                 </div>
-              ) : (
-                'Save Changes'
-              )}
+              ) : 'Save Changes'}
             </button>
+
             <button
               onClick={onClose}
               disabled={isLoading}
-              className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+              className="w-full border border-gray-300 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-50 focus:ring-4 focus:ring-gray-200"
             >
               Cancel
             </button>
@@ -208,6 +185,7 @@ const EditProfileModal = ({
         </div>
       </div>
     </div>
+  </div>
   );
 };
 
