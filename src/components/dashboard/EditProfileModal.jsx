@@ -13,10 +13,10 @@ const EditProfileModal = ({
   const [success, setSuccess] = useState('');
 
   const [formData, setFormData] = useState({
-    name: user?.fullname?.name || '',
-    major: user?.fullname?.major || '',
-    studyYear: user?.fullname?.studyYear || '',
-    bio: user?.fullname?.bio || '',
+    name: user.fullname?.name || '',
+    major: user.fullname?.major || '',
+    studyYear: user.fullname?.studyYear || '',
+    bio: user.fullname?.bio || '',
     role: 'Student (Buddy/Learner)'
   });
 
