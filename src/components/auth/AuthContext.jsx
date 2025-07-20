@@ -39,13 +39,15 @@ export const AuthProvider = ({ children }) => {
     const register = async (userData) => {
         try {
             const registrationPayload = {
-                fullname: userData.fullname,
+                fullname: {
+                    name: userData.fullname,
+                    schoolName: userData.schoolName,
+                    studyYear: userData.yearOfStudy,
+                    major: userData.major,
+                    bio: userData.bio || ''
+                },
                 email: userData.email,
                 password: userData.password,
-                schoolName: userData.schoolName,
-                studyYear: userData.yearOfStudy,
-                major: userData.major,
-                bio: userData.bio || '',
                 // skills: userData.modules || [],
                 role: 'BOTH',
                 availabilities: userData.availableTimeSlots || []
