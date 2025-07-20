@@ -54,16 +54,16 @@ const WelcomeSection = ({ user }) => {
       setIsUpdating(true);
       setUpdateError('');
       setUpdateSuccess('');
-      
+
       console.log('Saving profile:', formData);
-      
+
       // Get user ID from the authenticated user
       const userId = user?.id || user?.userId;
-      
+
       if (!userId) {
         throw new Error('User ID not found');
       }
-      
+
       // Prepare the profile data for the API
       const profileData = {
         name: formData.name,
@@ -71,21 +71,18 @@ const WelcomeSection = ({ user }) => {
         studyYear: formData.studyYear,
         bio: formData.bio
       };
-      
+
       // Call the profile service to update the profile
       const response = await profileService.updateProfile(userId, profileData);
-      
+
       console.log('Profile updated successfully:', response);
-      
-      // Update the local user state if needed
-      // This would depend on how your auth context manages user data
-      
+
       setUpdateSuccess('Profile updated successfully!');
       setShowEditProfile(false);
-      
+
       // Clear success message after 3 seconds
       setTimeout(() => setUpdateSuccess(''), 3000);
-      
+
     } catch (error) {
       console.error('Failed to save profile:', error);
       setUpdateError(error.message || 'Failed to update profile');
@@ -119,17 +116,17 @@ const WelcomeSection = ({ user }) => {
             <p className="text-gray-600">
               {user.fullname?.major} {`• ${user.fullname?.studyYear}`}
             </p>
+            {/* <p className="text-xs text-gray-400">
+              {user.fullname?.schoolName || 'African Leadership University'}
+            </p> */}
             <p className="text-sm text-gray-500">
               {user?.email}
             </p>
             {user.fullname?.bio && (
-              <p className="text-sm text-gray-500 mt-1 max-w-md">
+              <p className="text-sm text-gray-500 mt-2 max-w-2xl">
                 {user.fullname?.bio}
               </p>
             )}
-            <p className="text-xs text-gray-400 mt-1">
-              {user.fullname?.schoolName || 'African Leadership University'}
-            </p>
           </div>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
@@ -188,7 +185,7 @@ const WelcomeSection = ({ user }) => {
           <p className="text-sm text-green-600">{updateSuccess}</p>
         </div>
       )}
-      
+
       {updateError && (
         <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
           <p className="text-sm text-red-600">{updateError}</p>
