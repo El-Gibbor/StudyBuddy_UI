@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, Clock, X } from 'lucide-react';
+import { Plus, Trash2, Clock, X, Save, AlertCircle, CheckCircle } from 'lucide-react';
+import availabilityService from '../../services/availability/availability.service';
+import { useAuth } from '../auth/AuthContext';
 
 const AvailabilityEditor = ({ availabilities = [], onChange, supportAreas = [], onSupportAreasChange }) => {
+  const { user } = useAuth();
   const [localAvailabilities, setLocalAvailabilities] = useState(availabilities);
   const [localSupportAreas, setLocalSupportAreas] = useState(supportAreas);
   const [newSkill, setNewSkill] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
+  const [saveSuccess, setSaveSuccess] = useState('');
 
   const daysOfWeek = [
     { value: 0, label: 'Sunday', short: 'Sun' },
@@ -68,12 +74,88 @@ const AvailabilityEditor = ({ availabilities = [], onChange, supportAreas = [], 
     onSupportAreasChange?.(updated);
   };
 
+  const handleSaveAvailability = async () => {
+    try {
+      setIsSaving(true);
+      setSaveError('');
+      setSaveSuccess('');
+
+      const userId = user?.id || user?.userId;
+      if (!userId) {
+        throw new Error('User ID not found');
+      }
+
+      // Prepare the data for the API
+      const availabilityData = {
+        availabilities: localAvailabilities,
+        supportAreas: localSupportAreas
+      };
+
+      console.log('Saving availability:', availabilityData);
+
+      // Call the availability service
+      await availabilityService.updateAvailability(userId, availabilityData);
+
+      setSaveSuccess('Availability updated successfully!');
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setSaveSuccess(''), 3000);
+
+    } catch (error) {
+      console.error('Failed to save availability:', error);
+      setSaveError(error.message || 'Failed to update availability');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const availabilitiesByDay = getAvailabilitiesByDay();
 
   return (
-    <div className="space-y-6">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-xl font-semibold text-gray-900">Manage Your Availability</h2>
+        <button
+          onClick={handleSaveAvailability}
+          disabled={isSaving}
+          className="flex items-center space-x-2 bg-navy text-white px-4 py-2 rounded-lg hover:bg-navy-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isSaving ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <span>Saving...</span>
+            </>
+          ) : (
+            <>
+              <Save className="w-4 h-4" />
+              <span>Save Changes</span>
+            </>
+          )}
+        </button>
+      </div>
+
+      {/* Success/Error Messages */}
+      {saveSuccess && (
+        <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-md">
+          <p className="text-sm text-green-600 flex items-center">
+            <CheckCircle className="w-4 h-4 mr-2" />
+            {saveSuccess}
+          </p>
+        </div>
+      )}
+
+      {saveError && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+          <p className="text-sm text-red-600 flex items-center">
+            <AlertCircle className="w-4 h-4 mr-2" />
+            {saveError}
+          </p>
+        </div>
+      )}
+
+      <div className="space-y-6">
       {/* Weekly Grid Overview */}
-      <div className="bg-gray-50 rounded-md shadow-sm border border-gray-200 p-4">
+        <div className="bg-gray-50 rounded-md shadow-sm border border-gray-200 p-4">
         <h4 className="mb-3 flex items-center gap-2 text-lg font-semibold text-gray-900">
           <Clock className="w-4" />
           Weekly Availability
@@ -227,7 +309,7 @@ const AvailabilityEditor = ({ availabilities = [], onChange, supportAreas = [], 
       </div>
 
       {/* Support Areas */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-gray-50 rounded-lg shadow-sm border border-gray-200 p-6">
         <h4 className="text-lg font-semibold text-gray-900 mb-2">Support Areas (Skills/Modules I Can Help With)</h4>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -300,6 +382,8 @@ const AvailabilityEditor = ({ availabilities = [], onChange, supportAreas = [], 
           </div>
         </div>
       </div>
+      </div>
+    </div>
     </div>
   );
 };

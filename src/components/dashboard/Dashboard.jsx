@@ -189,7 +189,11 @@ const Dashboard = () => {
           />
         );
       case 'availability':
-        return <AvailabilityEditor user={user} />;
+        return <AvailabilityEditor 
+          availabilities={user?.availabilities || []} 
+          supportAreas={user?.skills || []} 
+          user={user} 
+        />;
       case 'notifications':
         return <NotificationsFeed notifications={notifications} />;
       default:
