@@ -35,7 +35,7 @@ const AvailabilityEditor = ({ availabilities = [], onChange, supportAreas = [], 
 
   const updateAvailability = (index, field, value) => {
     const updated = localAvailabilities.map((availability, i) =>
-      i === index ? { ...availability, [field]: parseInt(value) || value } : availability
+      i === index ? { ...availability, [field]: field === 'dayOfWeek' ? parseInt(value) : value } : availability
     );
     setLocalAvailabilities(updated);
     onChange?.(updated);
