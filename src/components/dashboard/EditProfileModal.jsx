@@ -5,7 +5,8 @@ const EditProfileModal = ({
   isOpen,
   onClose,
   user,
-  onSave
+  onSave,
+  isLoading = false
 }) => {
   const [formData, setFormData] = useState({
     name: user.fullname?.name || '',
@@ -38,8 +39,8 @@ const EditProfileModal = ({
   };
 
   const handleSave = () => {
+    // Don't close the modal immediately - let the parent handle it after successful save
     onSave(formData);
-    onClose();
   };
 
   if (!isOpen) return null;
@@ -184,12 +185,21 @@ const EditProfileModal = ({
           <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
             <button
               onClick={handleSave}
-              className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm"
+              disabled={isLoading}
+              className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed sm:ml-3 sm:w-auto sm:text-sm"
             >
-              Save Changes
+              {isLoading ? (
+                <div className="flex items-center">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  Saving...
+                </div>
+              ) : (
+                'Save Changes'
+              )}
             </button>
             <button
               onClick={onClose}
+              disabled={isLoading}
               className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
             >
               Cancel
