@@ -153,7 +153,14 @@ export const AuthProvider = ({ children }) => {
                 bio: profileData.bio
             };
 
-            const response = await profileService.updateProfile(user.id, { fullname: completeFullnameData });
+            // Include all expected fields in the payload
+            const updatePayload = {
+                fullname: completeFullnameData,
+                skills: user.skills || [],
+                availabilities: user.availabilities || []
+            };
+
+            const response = await profileService.updateProfile(user.id, updatePayload);
             
             // Update the user state with new data
             const updatedUser = {

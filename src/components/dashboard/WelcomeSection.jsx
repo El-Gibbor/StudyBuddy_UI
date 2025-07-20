@@ -127,7 +127,7 @@ const WelcomeSection = ({ user }) => {
           <div className="flex items-center justify-center w-8 h-8 bg-green-100 rounded-full mx-auto mb-2">
             <Star className="w-4 h-4 text-green-600" />
           </div>
-          <div className="text-2xl font-bold text-green-600">{user.fullname?.skills?.length || 0}</div>
+          <div className="text-2xl font-bold text-green-600">{user.skills?.length || 0}</div>
           <div className="text-sm text-gray-600">Modules I can Offer Help</div>
         </div>
       </div>
