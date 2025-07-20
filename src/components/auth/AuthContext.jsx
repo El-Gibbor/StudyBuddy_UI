@@ -39,15 +39,13 @@ export const AuthProvider = ({ children }) => {
     const register = async (userData) => {
         try {
             const registrationPayload = {
-                fullname: {
-                    name: userData.fullname,
-                    schoolName: userData.schoolName,
-                    studyYear: userData.yearOfStudy,
-                    major: userData.major,
-                    bio: userData.bio || ''
-                },
+                fullname: userData.fullname,
                 email: userData.email,
                 password: userData.password,
+                schoolName: userData.schoolName,
+                studyYear: userData.yearOfStudy,
+                major: userData.major,
+                bio: userData.bio || '',
                 // skills: userData.modules || [],
                 role: 'BOTH',
                 availabilities: userData.availableTimeSlots || []
@@ -144,28 +142,18 @@ export const AuthProvider = ({ children }) => {
                 throw new Error('User ID not found');
             }
 
-            // Construct complete fullname object by merging existing data with updates
-            const completeFullnameData = {
-                ...user.fullname, // Preserve existing fullname properties
-                name: profileData.name,
-                major: profileData.major,
-                studyYear: profileData.studyYear,
-                bio: profileData.bio
-            };
-
-            // Include all expected fields in the payload
-            const updatePayload = {
-                fullname: completeFullnameData,
-                skills: user.skills || [],
-                availabilities: user.availabilities || []
-            };
-
-            const response = await profileService.updateProfile(user.id, updatePayload);
+            const response = await profileService.updateProfile(user.id, profileData);
             
             // Update the user state with new data
             const updatedUser = {
                 ...user,
-                fullname: completeFullnameData
+                fullname: {
+                    ...user.fullname,
+                    name: profileData.name,
+                    major: profileData.major,
+                    studyYear: profileData.studyYear,
+                    bio: profileData.bio
+                }
             };
             
             setUser(updatedUser);
