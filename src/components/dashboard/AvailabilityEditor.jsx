@@ -1,248 +1,204 @@
 import React, { useState } from 'react';
-import { Clock, Plus, X, Save } from 'lucide-react';
+import { Edit3, Star, Calendar, Users, Plus, Trash2, Clock, X } from 'lucide-react';
 
-const AvailabilityEditor = ({ user }) => {
-  // Initialize availability from user data or default empty schedule
-  const [availability, setAvailability] = useState(() => {
-    if (user?.availabilities && Array.isArray(user.availabilities)) {
-      // Convert API format to component format
-      const schedule = {
-        Monday: [],
-        Tuesday: [],
-        Wednesday: [],
-        Thursday: [],
-        Friday: [],
-        Saturday: [],
-        Sunday: []
-      };
-      
-      user.availabilities.forEach(slot => {
-        if (slot && typeof slot === 'string') {
-          const [day, timeRange] = slot.split('_');
-          if (schedule[day]) {
-            schedule[day].push(timeRange);
-          }
-        }
-      });
-      
-      return schedule;
-    }
-    
-    return {
-      Monday: [],
-      Tuesday: [],
-      Wednesday: [],
-      Thursday: [],
-      Friday: [],
-      Saturday: [],
-      Sunday: []
-    };
-  });
-
-  // Initialize support areas from user data
-  const [supportAreas, setSupportAreas] = useState(() => {
-    if (user?.skills && Array.isArray(user.skills)) {
-      return user.skills;
-    }
-    return [];
-  });
-
+const AvailabilityEditor = ({ availabilities = [], onChange, supportAreas = [], onSupportAreasChange }) => {
+  const [localAvailabilities, setLocalAvailabilities] = useState(availabilities);
+  const [localSupportAreas, setLocalSupportAreas] = useState(supportAreas);
   const [newSkill, setNewSkill] = useState('');
-  const [newTimeSlot, setNewTimeSlot] = useState({ day: 'Monday', start: '', end: '' });
 
-  const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const daysOfWeek = [
+    { value: 0, label: 'Sunday', short: 'Sun' },
+    { value: 1, label: 'Monday', short: 'Mon' },
+    { value: 2, label: 'Tuesday', short: 'Tue' },
+    { value: 3, label: 'Wednesday', short: 'Wed' },
+    { value: 4, label: 'Thursday', short: 'Thu' },
+    { value: 5, label: 'Friday', short: 'Fri' },
+    { value: 6, label: 'Saturday', short: 'Sat' }
+  ];
 
-  const addTimeSlot = () => {
-    if (newTimeSlot.start && newTimeSlot.end) {
-      const timeSlot = `${newTimeSlot.start}-${newTimeSlot.end}`;
-      setAvailability(prev => ({
-        ...prev,
-        [newTimeSlot.day]: [...prev[newTimeSlot.day], timeSlot]
-      }));
-      setNewTimeSlot({ day: 'Monday', start: '', end: '' });
+  const timeSlots = [];
+  for (let hour = 6; hour < 22; hour++) {
+    for (let minute = 0; minute < 60; minute += 30) {
+      const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+      timeSlots.push(timeString);
     }
+  }
+
+  const addAvailability = () => {
+    const newAvailability = {
+      dayOfWeek: 1,
+      startTime: '09:00',
+      endTime: '10:00'
+    };
+    const updated = [...localAvailabilities, newAvailability];
+    setLocalAvailabilities(updated);
+    onChange?.(updated);
   };
 
-  const removeTimeSlot = (day, slotIndex) => {
-    setAvailability(prev => ({
-      ...prev,
-      [day]: prev[day].filter((_, index) => index !== slotIndex)
-    }));
+  const removeAvailability = (index) => {
+    const updated = localAvailabilities.filter((_, i) => i !== index);
+    setLocalAvailabilities(updated);
+    onChange?.(updated);
+  };
+
+  const updateAvailability = (index, field, value) => {
+    const updated = localAvailabilities.map((availability, i) =>
+      i === index ? { ...availability, [field]: parseInt(value) || value } : availability
+    );
+    setLocalAvailabilities(updated);
+    onChange?.(updated);
+  };
+
+  const getDayName = (dayOfWeek) => {
+    return daysOfWeek.find(day => day.value === dayOfWeek)?.label || 'Unknown';
+  };
+
+  const getAvailabilitiesByDay = () => {
+    const grouped = {};
+    daysOfWeek.forEach(day => {
+      grouped[day.value] = localAvailabilities.filter(a => a.dayOfWeek === day.value);
+    });
+    return grouped;
   };
 
   const addSkill = () => {
-    if (newSkill.trim() && !supportAreas.includes(newSkill.trim())) {
-      setSupportAreas(prev => [...prev, newSkill.trim()]);
+    if (newSkill.trim() && !localSupportAreas.includes(newSkill.trim())) {
+      const updated = [...localSupportAreas, newSkill.trim()];
+      setLocalSupportAreas(updated);
       setNewSkill('');
+      onSupportAreasChange?.(updated);
     }
   };
 
   const removeSkill = (skillToRemove) => {
-    setSupportAreas(prev => prev.filter(skill => skill !== skillToRemove));
+    const updated = localSupportAreas.filter(skill => skill !== skillToRemove);
+    setLocalSupportAreas(updated);
+    onSupportAreasChange?.(updated);
   };
 
-  const handleSave = () => {
-    // Save availability and support areas
-    console.log('Saving availability:', availability);
-    console.log('Saving support areas:', supportAreas);
-    // Show success message
-  };
+  const availabilitiesByDay = getAvailabilitiesByDay();
 
   return (
     <div className="space-y-6">
-      {/* Weekly Availability */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-gray-900">Weekly Availability</h2>
-          <button
-            onClick={handleSave}
-            className="flex items-center space-x-2 bg-navy text-white px-4 py-2 rounded-lg hover:bg-navy-light transition-colors"
-          >
-            <Save className="w-4 h-4" />
-            <span>Save Changes</span>
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Current Schedule */}
-          <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Current Schedule</h3>
-            <div className="space-y-4">
-              {daysOfWeek.map(day => (
-                <div key={day} className="border border-gray-200 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium text-gray-900">{day}</h4>
-                    <span className="text-sm text-gray-600">
-                      {availability[day].length} slot{availability[day].length !== 1 ? 's' : ''}
-                    </span>
-                  </div>
-                  
-                  {availability[day].length === 0 ? (
-                    <p className="text-sm text-gray-500 italic">No availability set</p>
-                  ) : (
-                    <div className="space-y-2">
-                      {availability[day].map((slot, index) => (
-                        <div key={index} className="flex items-center justify-between bg-blue-50 px-3 py-2 rounded-md">
-                          <span className="text-sm font-medium text-blue-800">{slot}</span>
-                          <button
-                            onClick={() => removeTimeSlot(day, index)}
-                            className="text-red-600 hover:text-red-800"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Add New Time Slot */}
-          <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Add Time Slot</h3>
-            <div className="border border-gray-200 rounded-lg p-4">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Day</label>
-                  <select
-                    value={newTimeSlot.day}
-                    onChange={(e) => setNewTimeSlot(prev => ({ ...prev, day: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-navy focus:border-transparent"
+      {/* Weekly Grid Overview */}
+      <div className="bg-gray-50 rounded-md shadow-sm border border-gray-200 p-4">
+        <h4 className="mb-3 flex items-center gap-2 text-lg font-semibold text-gray-900">
+          <Clock className="w-4" />
+          Weekly Availability
+        </h4>
+        <div className="grid grid-cols-7 gap-2">
+          {daysOfWeek.map(day => (
+            <div key={day.value} className="bg-white rounded border p-2 min-h-[80px]">
+              <div className="font-medium text-xs text-center mb-2 text-gray-700">
+                {day.short}
+              </div>
+              <div className="space-y-1">
+                {availabilitiesByDay[day.value].map((availability, index) => (
+                  <div
+                    key={index}
+                    className="bg-blue-100 text-blue-800 text-xs px-1 py-0.5 rounded text-center"
                   >
-                    {daysOfWeek.map(day => (
-                      <option key={day} value={day}>{day}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
-                    <input
-                      type="time"
-                      value={newTimeSlot.start}
-                      onChange={(e) => setNewTimeSlot(prev => ({ ...prev, start: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-navy focus:border-transparent"
-                    />
+                    {availability.startTime}-{availability.endTime}
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">End Time</label>
-                    <input
-                      type="time"
-                      value={newTimeSlot.end}
-                      onChange={(e) => setNewTimeSlot(prev => ({ ...prev, end: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-navy focus:border-transparent"
-                    />
-                  </div>
-                </div>
-
-                <button
-                  onClick={addTimeSlot}
-                  disabled={!newTimeSlot.start || !newTimeSlot.end}
-                  className="w-full flex items-center justify-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Add Time Slot</span>
-                </button>
+                ))}
+                {availabilitiesByDay[day.value].length === 0 && (
+                  <div className="text-gray-400 text-xs text-center">--</div>
+                )}
               </div>
             </div>
+          ))}
+        </div>
+      </div>
 
-            {/* Quick Actions */}
-            <div className="mt-4 space-y-2">
-              <h4 className="text-sm font-medium text-gray-700">Quick Actions</h4>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  onClick={() => {
-                    const weekdaySlot = '9:00-17:00';
-                    const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-                    setAvailability(prev => {
-                      const updated = { ...prev };
-                      weekdays.forEach(day => {
-                        if (!updated[day].includes(weekdaySlot)) {
-                          updated[day] = [...updated[day], weekdaySlot];
-                        }
-                      });
-                      return updated;
-                    });
-                  }}
-                  className="px-3 py-1 bg-gray-100 text-gray-700 rounded-md text-sm hover:bg-gray-200 transition-colors"
-                >
-                  Add Weekdays 9-5
-                </button>
-                <button
-                  onClick={() => {
-                    setAvailability({
-                      Monday: [],
-                      Tuesday: [],
-                      Wednesday: [],
-                      Thursday: [],
-                      Friday: [],
-                      Saturday: [],
-                      Sunday: []
-                    });
-                  }}
-                  className="px-3 py-1 bg-red-100 text-red-700 rounded-md text-sm hover:bg-red-200 transition-colors"
-                >
-                  Clear All
-                </button>
+      {/* Detailed Schedule */}
+      <div>
+        <h4 className="text-md font-medium text-gray-700 mb-2">Time Slots</h4>
+
+        {localAvailabilities.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mb-2">
+            {localAvailabilities.map((availability, index) => (
+              <div key={index} className="bg-gray-50 p-2 rounded-lg border hover:shadow-md transition-shadow">
+                <div className="space-y-1">
+                  <div className="grid grid-cols-4 gap-2 items-end">
+                    <div>
+                      <label className="block font-medium text-xs text-gray-700 mb-1">Day</label>
+                      <select
+                        value={availability.dayOfWeek}
+                        onChange={(e) => updateAvailability(index, 'dayOfWeek', e.target.value)}
+                        className="w-full px-2 py-1.5 font-medium text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      >
+                        {daysOfWeek.map(day => (
+                          <option key={day.value} value={day.value}>{day.label}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">Start Time</label>
+                      <select
+                        value={availability.startTime}
+                        onChange={(e) => updateAvailability(index, 'startTime', e.target.value)}
+                        className="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      >
+                        {timeSlots.map(time => (
+                          <option key={time} value={time}>{time}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">End Time</label>
+                      <select
+                        value={availability.endTime}
+                        onChange={(e) => updateAvailability(index, 'endTime', e.target.value)}
+                        className="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      >
+                        {timeSlots.filter(time => time > availability.startTime).map(time => (
+                          <option key={time} value={time}>{time}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="pt-2">
+                    <button
+                      onClick={() => removeAvailability(index)}
+                      className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs bg-gray-200 text-red-700 rounded-md hover:text-red-500 transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Remove Slot
+                    </button>
+                  </div>
+
+                  <div className="text-xs text-gray-600 bg-white p-2 rounded border">
+                    <strong>{getDayName(availability.dayOfWeek)}</strong>: {availability.startTime} - {availability.endTime}
+                  </div>
+                </div>
               </div>
-            </div>
+            ))}
           </div>
+        )}
+
+        <div className="flex justify-start">
+          <button
+            onClick={addAvailability}
+            className="flex items-center gap-2 px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-sm transition-colors shadow-sm"
+          >
+            <Plus className="w-4 h-4" />
+            Add Slot
+          </button>
         </div>
       </div>
 
       {/* Support Areas */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">Support Areas</h2>
-        
+        <h4 className="text-lg font-semibold text-gray-900 mb-2">Support Areas (Skills/Modules I Can Help With)</h4>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Current Skills */}
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Skills I Can Help With</h3>
             <div className="flex flex-wrap gap-2 mb-4">
-              {supportAreas.map((skill, index) => (
+              {localSupportAreas.map((skill, index) => (
                 <span
                   key={index}
                   className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
@@ -257,7 +213,7 @@ const AvailabilityEditor = ({ user }) => {
                 </span>
               ))}
             </div>
-            {supportAreas.length === 0 && (
+            {localSupportAreas.length === 0 && (
               <p className="text-gray-500 italic">No skills added yet</p>
             )}
           </div>
@@ -282,7 +238,7 @@ const AvailabilityEditor = ({ user }) => {
                 Add
               </button>
             </div>
-            
+
             {/* Suggested Skills */}
             <div className="mt-4">
               <h4 className="text-sm font-medium text-gray-700 mb-2">Suggested Skills</h4>
@@ -291,11 +247,13 @@ const AvailabilityEditor = ({ user }) => {
                   <button
                     key={skill}
                     onClick={() => {
-                      if (!supportAreas.includes(skill)) {
-                        setSupportAreas(prev => [...prev, skill]);
+                      if (!localSupportAreas.includes(skill)) {
+                        const updated = [...localSupportAreas, skill];
+                        setLocalSupportAreas(updated);
+                        onSupportAreasChange?.(updated);
                       }
                     }}
-                    disabled={supportAreas.includes(skill)}
+                    disabled={localSupportAreas.includes(skill)}
                     className="px-2 py-1 bg-gray-100 text-gray-600 rounded-md text-sm hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     {skill}

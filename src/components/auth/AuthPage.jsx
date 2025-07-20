@@ -83,23 +83,6 @@ const AuthPage = ({ defaultMode = 'signin', onSuccess }) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const addModule = () => {
-    if (moduleInput.trim() && !formData.skills.includes(moduleInput.trim())) {
-      setFormData(prev => ({
-        ...prev,
-        skills: [...prev.skills, moduleInput.trim()]
-      }));
-      setModuleInput('');
-    }
-  };
-
-  const removeModule = (moduleToRemove) => {
-    setFormData(prev => ({
-      ...prev,
-      skills: prev.skills.filter(module => module !== moduleToRemove)
-    }));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitError('');
