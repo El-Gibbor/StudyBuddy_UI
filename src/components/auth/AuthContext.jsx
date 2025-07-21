@@ -15,6 +15,12 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loading, setLoading] = useState(true);
+    
+    // Function to update user data
+    const updateUser = (userData) => {
+        setUser(userData);
+        localStorage.setItem('userData', JSON.stringify(userData));
+    };
 
     // Check for existing auth on app load
     useEffect(() => {
@@ -115,8 +121,8 @@ export const AuthProvider = ({ children }) => {
             console.log('Login data:', data);
 
             // Store auth data
-            if (data.token) {
-                localStorage.setItem('authToken', data.token);
+            if (data.accessToken) {
+                localStorage.setItem('authToken', data.accessToken);
                 localStorage.setItem('userData', JSON.stringify(data.user));
                 setUser(data.user);
                 setIsAuthenticated(true);
@@ -139,6 +145,7 @@ export const AuthProvider = ({ children }) => {
         user,
         isAuthenticated,
         loading,
+        setUser: updateUser,
         register,
         confirmRegistration,
         resendConfirmationCode,

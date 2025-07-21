@@ -1,10 +1,10 @@
 import React from 'react';
 
-import { useAuth } from './auth/AuthContext';
+import { useAuth } from '../auth/AuthContext';
 
 const LandingPage = ({ onShowAuth }) => {
     const { isAuthenticated } = useAuth();
-    
+
     const handleGetStarted = () => {
         if (isAuthenticated) {
             // User is already authenticated, redirect to dashboard or main app
