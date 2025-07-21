@@ -115,7 +115,7 @@ const AvailabilityEditor = ({ availabilities = [], onChange }) => {
       setLocalAvailabilities(finalAvailabilities);
       onChange?.(finalAvailabilities);
       setHasUnsavedChanges(false);
-      setSuccess('Availability saved successfully!');
+      setSuccess('Your availability is updated successfully!');
       setTimeout(() => setSuccess(''), 3000);
     } catch (error) {
       console.error('Error saving availability:', error);
