@@ -6,12 +6,17 @@ import SupportTickets from './SupportTickets';
 import FindPeers from './FindPeers';
 import AvailabilityEditor from './AvailabilityEditor';
 import NotificationsFeed from './NotificationsFeed';
-import { Calendar, Users, Ticket, Search, Clock, Bell } from 'lucide-react';
+import SkillsManagement from './SkillsManagement';
+import { Calendar, Users, Ticket, Search, Clock, Bell, BookOpen } from 'lucide-react';
+import availabilityService from '../../services/availability/availability.service';
+import skillsService from '../../services/skills/skills.service';
 
 const Dashboard = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [notifications, setNotifications] = useState([]);
+  const [userAvailabilities, setUserAvailabilities] = useState([]);
+  const [userSkills, setUserSkills] = useState([]);
 
   // Mock data for now
   const [dashboardData, setDashboardData] = useState({
@@ -23,6 +28,25 @@ const Dashboard = () => {
   });
 
   useEffect(() => {
+    // Load user's availabilities and skills
+    const loadUserData = async () => {
+      if (user?.id) {
+        try {
+          // Load availabilities
+          const availabilitiesResponse = await availabilityService.getUserAvailabilities(user.id);
+          setUserAvailabilities(availabilitiesResponse.data || []);
+
+          // Load skills
+          const skillsResponse = await skillsService.getUserSkills(user.id);
+          setUserSkills(skillsResponse.data || []);
+        } catch (error) {
+          console.error('Error loading user data:', error);
+        }
+      }
+    };
+
+    loadUserData();
+
     // Simulate API call
     setTimeout(() => {
       setDashboardData({
@@ -138,6 +162,7 @@ const Dashboard = () => {
     { id: 'tickets', label: 'Support Tickets', icon: Ticket },
     { id: 'find-peers', label: 'Find Peers', icon: Search },
     { id: 'availability', label: 'Availability', icon: Clock },
+    { id: 'skills', label: 'Skills & Modules', icon: BookOpen },
     { id: 'notifications', label: 'Notifications', icon: Bell }
   ];
 
@@ -189,7 +214,19 @@ const Dashboard = () => {
           />
         );
       case 'availability':
-        return <AvailabilityEditor user={user} />;
+        return (
+          <AvailabilityEditor
+            availabilities={userAvailabilities}
+            onChange={setUserAvailabilities}
+          />
+        );
+      case 'skills':
+        return (
+          <SkillsManagement
+            skills={userSkills}
+            onSkillsChange={setUserSkills}
+          />
+        );
       case 'notifications':
         return <NotificationsFeed notifications={notifications} />;
       default:

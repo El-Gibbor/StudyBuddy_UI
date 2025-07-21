@@ -3,7 +3,6 @@ import axiosClient from "../../utils/apiClient";
 class ProfileService {
   async updateProfile(userId, profileData) {
     try {
-      console.log('ProfileService: Updating profile for user:', userId);
       console.log('ProfileService: Profile data:', profileData);
 
       const response = await axiosClient.patch(`/user/${userId}`, profileData);
