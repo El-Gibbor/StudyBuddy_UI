@@ -384,7 +384,6 @@ const AvailabilityEditor = ({ availabilities = [], onChange, supportAreas = [], 
       </div>
       </div>
     </div>
-    </div>
   );
 };
 
