@@ -21,12 +21,6 @@ const LandingPage = ({ onShowAuth }) => {
         document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
     };
 
-    const handleFindBuddy = () => {
-        // for buddy search page
-    };
-
-
-
     return (
         <div className="min-h-screen">
             {/* Hero Section */}
@@ -37,7 +31,7 @@ const LandingPage = ({ onShowAuth }) => {
                             Connect. Support. <span className="text-yellow-300">Succeed!</span>
                         </h1>
                         <p className="text-xl md:text-xl mb-8 text-blue-400 max-w-4xl mx-auto">
-                           Peer-powered academic support platform, built for ALU students, by ALU student. Are you stuck on a concept or ready to lend a hand? StudyBuddy connects you with the right peers based on skills, availability, and course context.
+                           Peer-powered academic support platform, built for ALU students, by ALU students. If you stuck on a concept or ready to lend a hand, StudyBuddy connects you with the right peers based on skills, availability, and course context.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                             <button
