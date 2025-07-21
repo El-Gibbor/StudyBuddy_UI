@@ -26,5 +26,3 @@ cp*
 *.sln
 *.sw?
 .env
-skills*
-Skills*
