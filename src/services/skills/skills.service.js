@@ -27,6 +27,18 @@ class SkillsService {
         }
     }
 
+      async getUserSkills(userId) {
+        try {
+            console.log('SkillsService: Fetching user skills:', userId);
+
+            const response = await axiosClient.get(`/user/${userId}/skills`);
+            console.log('SkillsService: Skills fetched successfully:', response.data);
+            return response.data;
+        } catch (error) {
+            console.error('SkillsService: Error fetching skills:', error);
+            throw new Error(error.response?.data?.message || 'Failed to fetch skills');
+        }
+    }
 
 }
 
