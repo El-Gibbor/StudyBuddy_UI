@@ -1,43 +1,35 @@
 import axiosClient from "../../utils/apiClient";
 
 class SkillsService {
+    // Get current user skills
+    async getUserSkills() {
+        const response = await axiosClient.get('/user/skills');
+        return response.data;
+
+    }
+
+    // Add skills to current user profile
+    async addSkills(skillsData) {
+        const response = await axiosClient.post('/user/skills', skillsData);
+        return response.data;
+    }
+
+    // Update all skills for current user
     async updateSkills(skillsData) {
-        try {
-            console.log('SkillsService: Updating skills:', skillsData);
-
-            const response = await axiosClient.patch('/user/skills', skillsData);
-            console.log('SkillsService: Skills updated successfully:', response.data);
-            return response.data;
-        } catch (error) {
-            console.error('SkillsService: Error updating skills:', error);
-            throw new Error(error.response?.data?.message || 'Failed to update skills');
-        }
+        const response = await axiosClient.patch('/user/skills', skillsData);
+        return response.data;
     }
 
-     async deleteSkill(skillData) {
-        try {
-            console.log('SkillsService: Deleting skill:', skillData);
-
-            const response = await axiosClient.delete('/user/skills', { data: skillData });
-            console.log('SkillsService: Skill deleted successfully:', response.data);
-            return response.data;
-        } catch (error) {
-            console.error('SkillsService: Error deleting skill:', error);
-            throw new Error(error.response?.data?.message || 'Failed to delete skill');
-        }
+    // Remove specific skills from current user profile
+    async removeSkills(skillsData) {
+        const response = await axiosClient.delete('/user/skills', { data: skillsData });
+        return response.data;
     }
 
-      async getUserSkills(userId) {
-        try {
-            console.log('SkillsService: Fetching user skills:', userId);
-
-            const response = await axiosClient.get(`/user/${userId}/skills`);
-            console.log('SkillsService: Skills fetched successfully:', response.data);
-            return response.data;
-        } catch (error) {
-            console.error('SkillsService: Error fetching skills:', error);
-            throw new Error(error.response?.data?.message || 'Failed to fetch skills');
-        }
+    // Get skills for a specific user (for viewing other users' profiles)
+    async getUserSkillsById(userId) {
+        const response = await axiosClient.get(`/user/${userId}/skills`);
+        return response.data;
     }
 
 }

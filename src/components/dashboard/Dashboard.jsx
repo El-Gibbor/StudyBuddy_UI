@@ -221,12 +221,7 @@ const Dashboard = () => {
           />
         );
       case 'skills':
-        return (
-          <SkillsManagement
-            skills={userSkills}
-            onSkillsChange={setUserSkills}
-          />
-        );
+        return <SkillsManagement />;
       case 'notifications':
         return <NotificationsFeed notifications={notifications} />;
       default:

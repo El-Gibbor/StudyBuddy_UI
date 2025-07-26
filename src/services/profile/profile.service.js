@@ -13,6 +13,15 @@ class ProfileService {
       throw new Error(error.response?.data?.message || 'Failed to update profile');
     }
   }
+  async getStats() {
+    const response = await axiosClient.get('/stats/user');
+      return response.data;
+  }
+
+  async upComingSessions() {
+    const response = await axiosClient.get('/user/upcoming-sessions');
+    return response.data;
+  }
 }
 
 const profileService = new ProfileService();

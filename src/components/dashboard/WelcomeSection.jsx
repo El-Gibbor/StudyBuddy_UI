@@ -3,19 +3,22 @@ import { Edit3, Star, Calendar, Users } from 'lucide-react';
 import EditProfileModal from './EditProfileModal';
 import profileService from '../../services/profile/profile.service';
 import { useAuth } from '../auth/AuthContext';
+import { useStatsQuery, useUpcomingSessionsQuery } from '../../queries/index';
 
 const WelcomeSection = ({ user }) => {
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [updateError, setUpdateError] = useState('');
   const [updateSuccess, setUpdateSuccess] = useState('');
-  const { user: authUser, setUser } = useAuth();
+  // const { user: authUser, setUser } = useAuth();
 
-  // Mock stats for now
+  const { isLoading, data: statsData } = useStatsQuery();
+  const { data: upcomingSessionsData } = useUpcomingSessionsQuery();
+
   const stats = {
-    sessionsCompleted: '--',
-    helpedStudents: '--',
-    upcomingThisWeek: '--'
+    sessionsCompleted: statsData?.completedSessions || '0',
+    helpedStudents: statsData?.peopleHelped || '0',
+    upcomingThisWeek: upcomingSessionsData?.data?.total || '0'
   };
 
   const getGreeting = () => {

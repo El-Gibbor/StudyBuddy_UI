@@ -1,108 +1,98 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, X, BookOpen, Save, RotateCcw, Check, AlertCircle } from 'lucide-react';
-import skillsService from '../../services/skills/skills.service';
+import { useState, useEffect } from 'react';
+import { Plus, X, BookOpen, Check, AlertCircle } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
+import { useUserSkillsQuery } from '../../queries';
+import { useUpdateSkillsMutation, useAddSkillsMutation, useRemoveSkillsMutation } from '../../mutations';
 
-const SkillsManagement = ({ skills = [], onSkillsChange }) => {
-  const { user } = useAuth();
-  const [localSkills, setLocalSkills] = useState(skills);
+const SkillsManagement = () => {
   const [newSkill, setNewSkill] = useState('');
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // Update local skills when props change
-  useEffect(() => {
-    setLocalSkills(skills);
-    setHasUnsavedChanges(false);
-  }, [skills]);
+  // React Query hooks
+  const { 
+    data: userSkillsData, 
+    isLoading: isLoadingSkills, 
+    error: skillsError,
+    refetch: refetchSkills 
+  } = useUserSkillsQuery();
+  
+  const addSkillsMutation = useAddSkillsMutation();
+  const removeSkillsMutation = useRemoveSkillsMutation();
+  // Get current skills from API data
+  const currentSkills = userSkillsData?.data?.skills || [];
 
-  const addSkill = () => {
+  // Handle skills error
+  useEffect(() => {
+    if (skillsError) {
+      setError(skillsError.message || 'Failed to load skills');
+    }
+  }, [skillsError]);
+
+  const addSkill = async () => {
     const trimmedSkill = newSkill.trim();
-    if (trimmedSkill && !localSkills.includes(trimmedSkill)) {
-      const updated = [...localSkills, trimmedSkill];
-      setLocalSkills(updated);
-      setNewSkill('');
-      setHasUnsavedChanges(true);
+    if (trimmedSkill && !currentSkills.includes(trimmedSkill)) {
       setError('');
-    } else if (localSkills.includes(trimmedSkill)) {
+      setSuccess('');
+      
+      try {
+        await addSkillsMutation.mutateAsync({ skills: [trimmedSkill] });
+        setNewSkill('');
+        setSuccess('Skill added successfully!');
+        setTimeout(() => setSuccess(''), 3000);
+      } catch (error) {
+        console.error('Error adding skill:', error);
+        setError(error.message || 'Failed to add skill');
+        setTimeout(() => setError(''), 5000);
+      }
+    } else if (currentSkills.includes(trimmedSkill)) {
       setError('This skill is already added');
       setTimeout(() => setError(''), 3000);
     }
   };
 
-  const removeSkill = (skillToRemove) => {
-    const updated = localSkills.filter(skill => skill !== skillToRemove);
-    setLocalSkills(updated);
-    setHasUnsavedChanges(true);
-    setError('');
-  };
-
-  const addSuggestedSkill = (skill) => {
-    if (!localSkills.includes(skill)) {
-      const updated = [...localSkills, skill];
-      setLocalSkills(updated);
-      setHasUnsavedChanges(true);
-      setError('');
-    }
-  };
-
-  const saveChanges = async () => {
-    setIsSaving(true);
+  const removeSkill = async (skillToRemove) => {
     setError('');
     setSuccess('');
 
     try {
-      await skillsService.updateSkills({ skills: localSkills });
-      onSkillsChange?.(localSkills);
-      setHasUnsavedChanges(false);
-      setSuccess('Skills updated successfully!');
+      await removeSkillsMutation.mutateAsync({ skills: [skillToRemove] });
+      setSuccess('Skill removed successfully!');
       setTimeout(() => setSuccess(''), 3000);
     } catch (error) {
-      console.error('Error saving skills:', error);
-      setError(error.message || 'Failed to save skills');
+      console.error('Error removing skill:', error);
+      setError(error.message || 'Failed to remove skill');
       setTimeout(() => setError(''), 5000);
-    } finally {
-      setIsSaving(false);
     }
   };
 
-  const discardChanges = () => {
-    setLocalSkills(skills);
-    setNewSkill('');
-    setHasUnsavedChanges(false);
-    setError('');
-    setSuccess('');
-  };
 
-  const getSkillsByCategory = () => {
-    const categorized = {};
-    const uncategorized = [];
-
-    localSkills.forEach(skill => {
-      let found = false;
-      for (const [category, categorySkills] of Object.entries(skillCategories)) {
-        if (categorySkills.includes(skill)) {
-          if (!categorized[category]) categorized[category] = [];
-          categorized[category].push(skill);
-          found = true;
-          break;
-        }
-      }
-      if (!found) {
-        uncategorized.push(skill);
-      }
-    });
-
-    if (uncategorized.length > 0) {
-      categorized['Other Skills'] = [...(categorized['Other Skills'] || []), ...uncategorized];
-    }
-
-    return categorized;
-  };
-
-  const categorizedSkills = getSkillsByCategory();
+  // Show loading state
+  if (isLoadingSkills) {
+    return (
+      <div className="space-y-6">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="animate-pulse">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-10 h-10 bg-gray-200 rounded-lg"></div>
+              <div>
+                <div className="h-6 bg-gray-200 rounded w-64 mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded w-96"></div>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="bg-gray-100 rounded-lg p-4">
+                  <div className="h-8 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -119,62 +109,19 @@ const SkillsManagement = ({ skills = [], onSkillsChange }) => {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-blue-50 rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold text-blue-600">{localSkills.length}</div>
+            <div className="text-2xl font-bold text-blue-600">{currentSkills.length}</div>
             <div className="text-sm text-gray-600">Total Skills</div>
-          </div>
-          <div className="bg-green-50 rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold text-green-600">{Object.keys(categorizedSkills).length}</div>
-            <div className="text-sm text-gray-600">Categories</div>
           </div>
           <div className="bg-purple-50 rounded-lg p-4 text-center">
             <div className="text-2xl font-bold text-purple-600">
-              {hasUnsavedChanges ? 'Unsaved' : 'Saved'}
+              {addSkillsMutation.isPending || removeSkillsMutation.isPending ? 'Updating...' : 'Ready'}
             </div>
             <div className="text-sm text-gray-600">Status</div>
           </div>
         </div>
       </div>
-
-      {/* Unsaved Changes Warning */}
-      {hasUnsavedChanges && (
-        <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <AlertCircle className="w-5 h-5 text-yellow-600" />
-              <p className="text-sm text-yellow-800 font-medium">
-                You have unsaved changes to your skills
-              </p>
-            </div>
-            <div className="flex space-x-2">
-              <button
-                onClick={discardChanges}
-                className="text-sm text-yellow-600 hover:text-yellow-800 underline"
-              >
-                Discard Changes
-              </button>
-              <button
-                onClick={saveChanges}
-                disabled={isSaving}
-                className="px-3 py-1 bg-yellow-600 text-white text-sm rounded hover:bg-yellow-700 disabled:opacity-50 flex items-center space-x-1"
-              >
-                {isSaving ? (
-                  <>
-                    <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Saving...</span>
-                  </>
-                ) : (
-                  <>
-                    <Save className="w-3 h-3" />
-                    <span>Save Changes</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Success/Error Messages */}
       {success && (
@@ -209,7 +156,7 @@ const SkillsManagement = ({ skills = [], onSkillsChange }) => {
           />
           <button
             onClick={addSkill}
-            disabled={!newSkill.trim() || localSkills.includes(newSkill.trim())}
+            disabled={!newSkill.trim()}
             className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
           >
             <Plus className="w-4 h-4" />
@@ -218,85 +165,38 @@ const SkillsManagement = ({ skills = [], onSkillsChange }) => {
         </div>
       </div>
 
-      {/* Current Skills by Category */}
+     
+
+      {/* Current Skills */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-6">Your Skills & Modules</h3>
 
-        {localSkills.length === 0 ? (
+        {currentSkills.length === 0 ? (
           <div className="text-center py-8">
             <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h4 className="text-lg font-medium text-gray-900 mb-2">No skills added yet</h4>
             <p className="text-gray-600">Add your first skill to start helping other students!</p>
           </div>
         ) : (
-          <div className="space-y-6">
-            {Object.entries(categorizedSkills).map(([category, categorySkills]) => (
-              <div key={category}>
-                <h4 className="text-md font-medium text-gray-800 mb-3 flex items-center space-x-2">
-                  <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-                  <span>{category}</span>
-                  <span className="text-sm text-gray-500">({categorySkills.length})</span>
-                </h4>
-                <div className="flex flex-wrap gap-2">
-                  {categorySkills.map((skill, index) => (
-                    <span
-                      key={index}
-                      className="inline-flex items-center px-3 py-2 rounded-lg text-sm bg-blue-50 text-blue-800 border border-blue-200 hover:bg-blue-100 transition-colors"
-                    >
-                      {skill}
-                      <button
-                        onClick={() => removeSkill(skill)}
-                        className="ml-2 text-blue-600 hover:text-red-600 transition-colors"
-                        title="Remove skill"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              </div>
+          <div className="flex flex-wrap gap-2">
+            {currentSkills.map((skill, index) => (
+              <span
+                key={index}
+                className="inline-flex items-center px-3 py-2 rounded-lg text-sm bg-blue-50 text-blue-800 border border-blue-200 hover:bg-blue-100 transition-colors"
+              >
+                {skill}
+                <button
+                  onClick={() => removeSkill(skill)}
+                  className="ml-2 text-blue-600 hover:text-red-600 transition-colors"
+                  title="Remove skill"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
             ))}
           </div>
         )}
       </div>
-
-      {/* Save Changes Button (Fixed at bottom when changes exist) */}
-      {hasUnsavedChanges && (
-        <div className="sticky bottom-4 flex justify-center">
-          <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-4 flex items-center space-x-4">
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <AlertCircle className="w-4 h-4 text-yellow-500" />
-              <span>You have unsaved changes</span>
-            </div>
-            <div className="flex space-x-2">
-              <button
-                onClick={discardChanges}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center space-x-2"
-              >
-                <RotateCcw className="w-4 h-4" />
-                <span>Discard</span>
-              </button>
-              <button
-                onClick={saveChanges}
-                disabled={isSaving}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
-              >
-                {isSaving ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Saving...</span>
-                  </>
-                ) : (
-                  <>
-                    <Save className="w-4 h-4" />
-                    <span>Save Changes</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
