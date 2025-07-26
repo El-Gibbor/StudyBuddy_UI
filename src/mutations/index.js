@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import skillsService from '../services/skills/skills.service';
+import studyBuddyService from '../services/studybuddy/studybuddy.js';
 
 // Hook for adding skills
 export const useAddSkillsMutation = () => {
@@ -51,6 +52,60 @@ export const useRemoveSkillsMutation = () => {
     },
     onError: (error) => {
       console.error('Failed to remove skills:', error);
+    }
+  });
+};
+
+// Hook for adding availability
+export const useAddAvailabilityMutation = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (availabilityData) => studyBuddyService.addAvailability(availabilityData),
+    onSuccess: (data) => {
+      // Invalidate and refetch current user availability
+      queryClient.invalidateQueries({ queryKey: ['currentUserAvailability'] });
+      // Also invalidate study buddies queries as availability affects them
+      queryClient.invalidateQueries({ queryKey: ['studyBuddies'] });
+    },
+    onError: (error) => {
+      console.error('Failed to add availability:', error);
+    }
+  });
+};
+
+// Hook for updating availability
+export const useUpdateAvailabilityMutation = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ id, availabilityData }) => studyBuddyService.updateAvailability(id, availabilityData),
+    onSuccess: (data) => {
+      // Invalidate and refetch current user availability
+      queryClient.invalidateQueries({ queryKey: ['currentUserAvailability'] });
+      // Also invalidate study buddies queries as availability affects them
+      queryClient.invalidateQueries({ queryKey: ['studyBuddies'] });
+    },
+    onError: (error) => {
+      console.error('Failed to update availability:', error);
+    }
+  });
+};
+
+// Hook for removing availability
+export const useRemoveAvailabilityMutation = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (id) => studyBuddyService.removeAvailability(id),
+    onSuccess: (data) => {
+      // Invalidate and refetch current user availability
+      queryClient.invalidateQueries({ queryKey: ['currentUserAvailability'] });
+      // Also invalidate study buddies queries as availability affects them
+      queryClient.invalidateQueries({ queryKey: ['studyBuddies'] });
+    },
+    onError: (error) => {
+      console.error('Failed to remove availability:', error);
     }
   });
 };

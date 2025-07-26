@@ -207,12 +207,7 @@ const Dashboard = () => {
           />
         );
       case 'find-peers':
-        return (
-          <FindPeers
-            peers={dashboardData.availablePeers}
-            loading={dashboardData.loading}
-          />
-        );
+        return <FindPeers />;
       case 'availability':
         return (
           <AvailabilityEditor
