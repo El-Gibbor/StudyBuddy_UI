@@ -110,3 +110,145 @@ export const useRemoveAvailabilityMutation = () => {
     }
   });
 };
+
+// Sessions Mutations
+
+// Hook for creating a new session
+export const useCreateSessionMutation = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (sessionData) => sessionsService.createSession(sessionData),
+    onSuccess: (data) => {
+      // Invalidate and refetch sessions queries
+      queryClient.invalidateQueries({ queryKey: ['sessions'] });
+      queryClient.invalidateQueries({ queryKey: ['mySessions'] });
+      queryClient.invalidateQueries({ queryKey: ['userUpcomingSessions'] });
+    },
+    onError: (error) => {
+      console.error('Failed to create session:', error);
+    }
+  });
+};
+
+// Hook for updating a session
+export const useUpdateSessionMutation = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ id, updateData }) => sessionsService.updateSession(id, updateData),
+    onSuccess: (data, variables) => {
+      // Invalidate specific session
+      queryClient.invalidateQueries({ queryKey: ['session', variables.id] });
+      // Invalidate sessions lists
+      queryClient.invalidateQueries({ queryKey: ['sessions'] });
+      queryClient.invalidateQueries({ queryKey: ['mySessions'] });
+      queryClient.invalidateQueries({ queryKey: ['userUpcomingSessions'] });
+    },
+    onError: (error) => {
+      console.error('Failed to update session:', error);
+    }
+  });
+};
+
+// Hook for canceling a session
+export const useCancelSessionMutation = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (id) => sessionsService.cancelSession(id),
+    onSuccess: (data, id) => {
+      // Invalidate specific session
+      queryClient.invalidateQueries({ queryKey: ['session', id] });
+      // Invalidate sessions lists
+      queryClient.invalidateQueries({ queryKey: ['sessions'] });
+      queryClient.invalidateQueries({ queryKey: ['mySessions'] });
+      queryClient.invalidateQueries({ queryKey: ['userUpcomingSessions'] });
+    },
+    onError: (error) => {
+      console.error('Failed to cancel session:', error);
+    }
+  });
+};
+
+// Hook for confirming a session
+export const useConfirmSessionMutation = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (id) => sessionsService.confirmSession(id),
+    onSuccess: (data, id) => {
+      // Invalidate specific session
+      queryClient.invalidateQueries({ queryKey: ['session', id] });
+      // Invalidate sessions lists
+      queryClient.invalidateQueries({ queryKey: ['sessions'] });
+      queryClient.invalidateQueries({ queryKey: ['mySessions'] });
+      queryClient.invalidateQueries({ queryKey: ['userUpcomingSessions'] });
+    },
+    onError: (error) => {
+      console.error('Failed to confirm session:', error);
+    }
+  });
+};
+
+// Hook for rejecting a session
+export const useRejectSessionMutation = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (id) => sessionsService.rejectSession(id),
+    onSuccess: (data, id) => {
+      // Invalidate specific session
+      queryClient.invalidateQueries({ queryKey: ['session', id] });
+      // Invalidate sessions lists
+      queryClient.invalidateQueries({ queryKey: ['sessions'] });
+      queryClient.invalidateQueries({ queryKey: ['mySessions'] });
+      queryClient.invalidateQueries({ queryKey: ['userUpcomingSessions'] });
+    },
+    onError: (error) => {
+      console.error('Failed to reject session:', error);
+    }
+  });
+};
+
+// Hook for completing a session with feedback
+export const useCompleteSessionMutation = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ id, feedbackData }) => sessionsService.completeSession(id, feedbackData),
+    onSuccess: (data, variables) => {
+      // Invalidate specific session
+      queryClient.invalidateQueries({ queryKey: ['session', variables.id] });
+      // Invalidate sessions lists
+      queryClient.invalidateQueries({ queryKey: ['sessions'] });
+      queryClient.invalidateQueries({ queryKey: ['mySessions'] });
+      queryClient.invalidateQueries({ queryKey: ['userUpcomingSessions'] });
+      // Also invalidate stats as completing sessions affects them
+      queryClient.invalidateQueries({ queryKey: ['userStats'] });
+    },
+    onError: (error) => {
+      console.error('Failed to complete session:', error);
+    }
+  });
+};
+
+// Hook for starting a session
+export const useStartSessionMutation = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (id) => sessionsService.startSession(id),
+    onSuccess: (data, id) => {
+      // Invalidate specific session
+      queryClient.invalidateQueries({ queryKey: ['session', id] });
+      // Invalidate sessions lists
+      queryClient.invalidateQueries({ queryKey: ['sessions'] });
+      queryClient.invalidateQueries({ queryKey: ['mySessions'] });
+      queryClient.invalidateQueries({ queryKey: ['userUpcomingSessions'] });
+    },
+    onError: (error) => {
+      console.error('Failed to start session:', error);
+    }
+  });
+};

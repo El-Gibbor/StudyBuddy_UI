@@ -7,6 +7,7 @@ import FindPeers from './FindPeers';
 import AvailabilityEditor from './AvailabilityEditor';
 import NotificationsFeed from './NotificationsFeed';
 import SkillsManagement from './SkillsManagement';
+import SessionsManagement from './SessionsManagement';
 import { Calendar, Users, Ticket, Search, Clock, Bell, BookOpen } from 'lucide-react';
 import availabilityService from '../../services/availability/availability.service';
 import skillsService from '../../services/skills/skills.service';
@@ -173,11 +174,7 @@ const Dashboard = () => {
           <div className="space-y-6">
             <WelcomeSection user={user} />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <UpcomingSessions
-                sessions={dashboardData.upcomingSessions}
-                loading={dashboardData.loading}
-                compact={true}
-              />
+              <UpcomingSessions compact={true} />
               <SupportTickets
                 myTickets={dashboardData.myTickets}
                 claimedTickets={dashboardData.claimedTickets}
@@ -192,12 +189,7 @@ const Dashboard = () => {
           </div>
         );
       case 'sessions':
-        return (
-          <UpcomingSessions
-            sessions={dashboardData.upcomingSessions}
-            loading={dashboardData.loading}
-          />
-        );
+        return <SessionsManagement />;
       case 'tickets':
         return (
           <SupportTickets

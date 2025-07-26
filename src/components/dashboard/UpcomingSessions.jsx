@@ -1,8 +1,17 @@
 import React, { useState } from 'react';
 import { Calendar, Clock, Video, User, MapPin, ChevronRight } from 'lucide-react';
+import { useMySessionsQuery } from '../../queries';
 
-const UpcomingSessions = ({ sessions, loading, compact = false }) => {
+const UpcomingSessions = ({ compact = false }) => {
   const [selectedView, setSelectedView] = useState('list');
+
+  // Query for upcoming sessions
+  const { data: sessionsData, isLoading: loading, error } = useMySessionsQuery({
+    status: 'confirmed,in_progress',
+    limit: compact ? 3 : 10
+  });
+
+  const sessions = sessionsData?.data?.sessions || [];
 
   if (loading) {
     return (
@@ -14,6 +23,18 @@ const UpcomingSessions = ({ sessions, loading, compact = false }) => {
               <div key={i} className="h-16 bg-gray-200 rounded"></div>
             ))}
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="text-center py-8">
+          <Calendar className="w-12 h-12 text-red-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Error loading sessions</h3>
+          <p className="text-red-600">{error.message}</p>
         </div>
       </div>
     );

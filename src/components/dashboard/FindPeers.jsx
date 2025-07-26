@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Search, Filter, Star, Calendar, MessageSquare, User, Clock, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
 import { useStudyBuddiesQuery } from '../../queries';
+import SessionBookingModal from './SessionBookingModal';
 
 const FindPeers = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -11,6 +12,7 @@ const FindPeers = () => {
   const [showAvailabilityModal, setShowAvailabilityModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(9); // 9 cards per page for 3x3 grid
+  const [feedbackMessage, setFeedbackMessage] = useState('');
 
   // Build filter parameters for API
   const filterParams = {
@@ -94,6 +96,23 @@ const FindPeers = () => {
     setShowAvailabilityModal(true);
   };
 
+  const handleChatWithPeer = (peer) => {
+    // Generate Google Chat link with pre-filled message
+    const message = encodeURIComponent(`Hi ${peer.name}! I found your profile on StudyBuddy and would like to connect for a study session.`);
+    const googleChatUrl = `https://mail.google.com/chat/u/0/#chat/space/new?to=${encodeURIComponent(peer.email || '')}&text=${message}`;
+    
+    // Open Google Chat in a new tab
+    window.open(googleChatUrl, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleBookingSuccess = (message, type = 'success') => {
+    setFeedbackMessage(message);
+    if (type === 'success') {
+      // Auto-clear success message after 3 seconds
+      setTimeout(() => setFeedbackMessage(''), 3000);
+    }
+  };
+
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
@@ -132,6 +151,13 @@ const FindPeers = () => {
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      {/* Feedback Message */}
+      {feedbackMessage && (
+        <div className="mb-4 p-3 bg-green-100 border border-green-300 text-green-700 rounded-md">
+          {feedbackMessage}
+        </div>
+      )}
+
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Find Study Peers</h2>
 
@@ -266,7 +292,11 @@ const FindPeers = () => {
                 >
                   Request Session
                 </button>
-                <button className="flex items-center justify-center w-10 h-10 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                <button 
+                  onClick={() => handleChatWithPeer(peer)}
+                  className="flex items-center justify-center w-10 h-10 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                  title="Chat on Google Chat"
+                >
                   <MessageSquare className="w-4 h-4 text-gray-600" />
                 </button>
               </div>
@@ -338,66 +368,13 @@ const FindPeers = () => {
         </div>
       )}
 
-      {/* Booking Modal */}
-      {showBookingModal && selectedPeer && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div className="fixed inset-0 transition-opacity" aria-hidden="true">
-              <div className="absolute inset-0 bg-gray-500 opacity-75" onClick={() => setShowBookingModal(false)}></div>
-            </div>
-            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <div className="flex items-center space-x-3 mb-4">
-                  <img
-                    src={selectedPeer.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedPeer.name)}&background=3B82F6&color=fff`}
-                    alt={selectedPeer.name}
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-900">{selectedPeer.name}</h3>
-                    <p className="text-sm text-gray-600">{selectedPeer.major} • {selectedPeer.studyYear}</p>
-                  </div>
-                </div>
-                <p className="text-gray-600 mb-4">Session booking functionality will be implemented here.</p>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Session Topic
-                    </label>
-                    <input
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-navy focus:border-transparent"
-                      placeholder="What do you need help with?"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Preferred Date & Time
-                    </label>
-                    <input
-                      type="datetime-local"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-navy focus:border-transparent"
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button
-                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
-                >
-                  Send Request
-                </button>
-                <button
-                  onClick={() => setShowBookingModal(false)}
-                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Session Booking Modal */}
+      <SessionBookingModal
+        isOpen={showBookingModal}
+        onClose={() => setShowBookingModal(false)}
+        selectedPeer={selectedPeer}
+        onSuccess={handleBookingSuccess}
+      />
 
       {/* Availability Modal */}
       {showAvailabilityModal && selectedPeer && (
