@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import skillsService from '../services/skills/skills.service';
 import studyBuddyService from '../services/studybuddy/studybuddy.js';
+import sessionsService from '../services/sessions/sessions.service.js';
 
 // Hook for adding skills
 export const useAddSkillsMutation = () => {

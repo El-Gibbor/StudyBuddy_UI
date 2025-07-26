@@ -15,16 +15,16 @@ const FindPeers = () => {
   // Build filter parameters for API
   const filterParams = {
     ...(searchTerm.trim() && { search: searchTerm.trim() }),
-    ...(selectedModule && selectedModule !== 'All Modules' && { skills: selectedModule }),
+    ...(selectedModule && selectedModule !== 'All Modules' && { skill: selectedModule }),
     ...(selectedAvailability && selectedAvailability !== 'Any time' && { availability: selectedAvailability }),
     page: currentPage,
     limit: pageSize,
   };
 
-  const { 
-    data: studyBuddiesData, 
-    isLoading, 
-    error 
+  const {
+    data: studyBuddiesData,
+    isLoading,
+    error
   } = useStudyBuddiesQuery(filterParams);
 
   // Extract peers from API response - buddies are in data.buddies
@@ -35,7 +35,7 @@ const FindPeers = () => {
   // Helper function to format availability
   const formatAvailability = (availability) => {
     if (!availability || availability.length === 0) return 'No availability set';
-    
+
     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const firstSlot = availability[0];
     const dayName = dayNames[firstSlot.dayOfWeek];
@@ -45,9 +45,9 @@ const FindPeers = () => {
   // Helper function to format all availability slots
   const formatAllAvailability = (availability) => {
     if (!availability || availability.length === 0) return [];
-    
+
     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    
+
     return availability.map(slot => ({
       day: dayNames[slot.dayOfWeek],
       time: `${slot.startTime}-${slot.endTime}`,
@@ -57,24 +57,31 @@ const FindPeers = () => {
 
   const modules = [
     'All Modules',
-    'Frontend Development',
-    'Backend Development',
-    'Data Structures',
-    'Machine Learning',
-    'Database Design',
-    'Mobile Development',
     'JavaScript',
     'Python',
     'React',
     'Node.js',
-    'Web Development'
+    'Data Structures',
+    'Algorithms',
+    'Machine Learning',
+    'Database Design',
+    'Web Development',
+    'Mobile Development',
+    'CSS',
+    'HTML',
+    'SQL',
+    'MongoDB',
+    'Git'
   ];
 
   const availabilityOptions = [
-    'Any time',
-    'Available today',
-    'Available tomorrow',
-    'Available this week'
+    { value: 'Any time', label: 'Any time' },
+    { value: 'today', label: 'Available today' },
+    { value: 'tomorrow', label: 'Available tomorrow' },
+    { value: 'this_week', label: 'Available this week' },
+    { value: 'next_week', label: 'Available next week' },
+    { value: 'weekdays', label: 'Weekdays only' },
+    { value: 'weekends', label: 'Weekends only' }
   ];
 
   const handleRequestSession = (peer) => {
@@ -122,9 +129,49 @@ const FindPeers = () => {
     );
   }
 
-  if (isLoading) {
-    return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+
+  return (
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">Find Study Peers</h2>
+
+        {/* Search and Filters */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Search by name or skill..."
+              value={searchTerm}
+              onChange={(e) => handleFilterChange('search', e.target.value)}
+              className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-navy focus:border-transparent"
+            />
+          </div>
+
+          <select
+            value={selectedModule}
+            onChange={(e) => handleFilterChange('module', e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-navy focus:border-transparent"
+          >
+            {modules.map(module => (
+              <option key={module} value={module}>{module}</option>
+            ))}
+          </select>
+
+          <select
+            value={selectedAvailability}
+            onChange={(e) => handleFilterChange('availability', e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-navy focus:border-transparent"
+          >
+            {availabilityOptions.map(option => (
+              <option key={option.value} value={option.value}>{option.label}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Peer Cards */}
+      {isLoading ? <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <div className="animate-pulse">
           <div className="h-6 bg-gray-200 rounded w-1/3 mb-4"></div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
@@ -138,52 +185,7 @@ const FindPeers = () => {
             ))}
           </div>
         </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Find Study Peers</h2>
-        
-        {/* Search and Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Search by name or skill..."
-              value={searchTerm}
-              onChange={(e) => handleFilterChange('search', e.target.value)}
-              className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-navy focus:border-transparent"
-            />
-          </div>
-          
-          <select
-            value={selectedModule}
-            onChange={(e) => handleFilterChange('module', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-navy focus:border-transparent"
-          >
-            {modules.map(module => (
-              <option key={module} value={module}>{module}</option>
-            ))}
-          </select>
-          
-          <select
-            value={selectedAvailability}
-            onChange={(e) => handleFilterChange('availability', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-navy focus:border-transparent"
-          >
-            {availabilityOptions.map(option => (
-              <option key={option} value={option}>{option}</option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {/* Peer Cards */}
-      {peers.length === 0 ? (
+      </div> : peers.length === 0 ? (
         <div className="text-center py-8">
           <User className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">No peers found</h3>
@@ -288,7 +290,7 @@ const FindPeers = () => {
               <ChevronLeft className="w-4 h-4 mr-1" />
               Previous
             </button>
-            
+
             <div className="flex items-center space-x-1">
               {[...Array(totalPages)].map((_, index) => {
                 const page = index + 1;
@@ -302,11 +304,10 @@ const FindPeers = () => {
                     <button
                       key={page}
                       onClick={() => handlePageChange(page)}
-                      className={`px-3 py-2 text-sm font-medium rounded-md ${
-                        page === currentPage
+                      className={`px-3 py-2 text-sm font-medium rounded-md ${page === currentPage
                           ? 'bg-blue-600 text-white'
                           : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
-                      }`}
+                        }`}
                     >
                       {page}
                     </button>
@@ -418,7 +419,7 @@ const FindPeers = () => {
                     <p className="text-sm text-gray-600">Availability Schedule</p>
                   </div>
                 </div>
-                
+
                 <div className="space-y-3">
                   {selectedPeer.availability && selectedPeer.availability.length > 0 ? (
                     formatAllAvailability(selectedPeer.availability).map((slot, index) => (

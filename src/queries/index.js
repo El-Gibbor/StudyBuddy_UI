@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import profileService from '../services/profile/profile.service';   
 import skillsService from '../services/skills/skills.service';
 import studyBuddyService from '../services/studybuddy/studybuddy.js';
+import sessionsService from '../services/sessions/sessions.service.js';
 
 const useStatsQuery = () => {
   return useQuery({
@@ -73,6 +74,40 @@ const useCurrentUserAvailabilityQuery = (options = {}) => {
   });
 };
 
+// Hook for fetching sessions with filtering
+const useSessionsQuery = (params = {}, options = {}) => {
+  return useQuery({
+    queryKey: ['sessions', params],
+    queryFn: () => sessionsService.getSessions(params),
+    staleTime: 1 * 60 * 1000, // 1 minute (sessions change frequently)
+    refetchOnWindowFocus: false,
+    ...options
+  });
+};
+
+// Hook for fetching current user sessions
+const useMySessionsQuery = (params = {}, options = {}) => {
+  return useQuery({
+    queryKey: ['mySessions', params],
+    queryFn: () => sessionsService.getMySessions(params),
+    staleTime: 1 * 60 * 1000, // 1 minute
+    refetchOnWindowFocus: false,
+    ...options
+  });
+};
+
+// Hook for fetching a specific session by ID
+const useSessionByIdQuery = (id, options = {}) => {
+  return useQuery({
+    queryKey: ['session', id],
+    queryFn: () => sessionsService.getSessionById(id),
+    enabled: !!id, // Only run query if id is provided
+    staleTime: 30 * 1000, // 30 seconds (session details may change quickly)
+    refetchOnWindowFocus: false,
+    ...options
+  });
+};
+
 export {
     useStatsQuery,
     useUpcomingSessionsQuery,
@@ -80,5 +115,8 @@ export {
     useUserSkillsByIdQuery,
     useStudyBuddiesQuery,
     useStudyBuddyByIdQuery,
-    useCurrentUserAvailabilityQuery
+    useCurrentUserAvailabilityQuery,
+    useSessionsQuery,
+    useMySessionsQuery,
+    useSessionByIdQuery
 }
