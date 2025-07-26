@@ -16,6 +16,78 @@ const SessionBookingModal = ({
 
   const createSessionMutation = useCreateSessionMutation();
 
+  // Helper function to get available time slots for the peer
+  const getAvailableTimeSlots = () => {
+    if (!selectedPeer?.availability || selectedPeer.availability.length === 0) {
+      return [];
+    }
+
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    
+    return selectedPeer.availability.map(slot => ({
+      dayOfWeek: slot.dayOfWeek,
+      dayName: dayNames[slot.dayOfWeek],
+      startTime: slot.startTime,
+      endTime: slot.endTime
+    }));
+  };
+
+  // Helper function to check if a selected datetime is within available slots
+  const isDateTimeAvailable = (selectedDateTime) => {
+    if (!selectedDateTime || !selectedPeer?.availability) return false;
+
+    const selectedDate = new Date(selectedDateTime);
+    const selectedDayOfWeek = selectedDate.getDay();
+    const selectedTime = selectedDate.toTimeString().slice(0, 5); // HH:MM format
+
+    // Check if there's an availability slot for this day
+    const availableSlot = selectedPeer.availability.find(slot => 
+      slot.dayOfWeek === selectedDayOfWeek
+    );
+
+    if (!availableSlot) return false;
+
+    // Check if the selected time is within the available time range
+    return selectedTime >= availableSlot.startTime && selectedTime <= availableSlot.endTime;
+  };
+
+  // Generate suggested available datetime options for the next 2 weeks
+  const getSuggestedDateTimes = () => {
+    if (!selectedPeer?.availability || selectedPeer.availability.length === 0) {
+      return [];
+    }
+
+    const suggestions = [];
+    const today = new Date();
+    
+    // Look ahead 14 days
+    for (let i = 1; i <= 14; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      const dayOfWeek = date.getDay();
+      
+      // Check if this day has availability
+      const availableSlot = selectedPeer.availability.find(slot => 
+        slot.dayOfWeek === dayOfWeek
+      );
+      
+      if (availableSlot) {
+        // Create a datetime at the start of their available time
+        const [hours, minutes] = availableSlot.startTime.split(':');
+        const suggestionDate = new Date(date);
+        suggestionDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+        
+        suggestions.push({
+          datetime: suggestionDate.toISOString().slice(0, 16), // Format for datetime-local
+          display: `${suggestionDate.toLocaleDateString()} at ${availableSlot.startTime}`,
+          dayName: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][dayOfWeek]
+        });
+      }
+    }
+    
+    return suggestions.slice(0, 6); // Limit to first 6 suggestions
+  };
+
   const handleFormInputChange = (field, value) => {
     setSessionForm(prev => ({
       ...prev,
@@ -27,6 +99,14 @@ const SessionBookingModal = ({
     e.preventDefault();
     
     if (!sessionForm.topic.trim() || !sessionForm.date || !sessionForm.module.trim()) {
+      return;
+    }
+
+    // Validate that the selected datetime is within the peer's availability
+    if (!isDateTimeAvailable(sessionForm.date)) {
+      if (onSuccess) {
+        onSuccess('Selected time is not within the buddy\'s available hours. Please choose a time when they are available.', 'error');
+      }
       return;
     }
 
@@ -58,8 +138,24 @@ const SessionBookingModal = ({
       
     } catch (error) {
       console.error('Failed to create session:', error);
+      
+      // Extract error message from API response structure
+      let errorMessage = 'Failed to send session request. Please try again.';
+      
+      if (error?.response?.data) {
+        const apiError = error.response.data;
+        // Handle the specific API error structure
+        if (apiError.status === 'error' && apiError.error?.message) {
+          errorMessage = apiError.error.message;
+        } else if (apiError.message) {
+          errorMessage = apiError.message;
+        }
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      
       if (onSuccess) {
-        onSuccess('Failed to send session request. Please try again.', 'error');
+        onSuccess(errorMessage, 'error');
       }
     }
   };
@@ -136,9 +232,59 @@ const SessionBookingModal = ({
                   type="datetime-local"
                   value={sessionForm.date}
                   onChange={(e) => handleFormInputChange('date', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    sessionForm.date && !isDateTimeAvailable(sessionForm.date)
+                      ? 'border-red-300 bg-red-50'
+                      : 'border-gray-300'
+                  }`}
                   required
                 />
+                {sessionForm.date && !isDateTimeAvailable(sessionForm.date) && (
+                  <p className="text-xs text-red-600 mt-1">
+                    This time is not within {selectedPeer.name}'s available hours.
+                  </p>
+                )}
+                
+                {/* Show availability information */}
+                <div className="mt-2">
+                  <p className="text-xs font-medium text-gray-700 mb-2">
+                    {selectedPeer.name}'s availability:
+                  </p>
+                  {getAvailableTimeSlots().length > 0 ? (
+                    <div className="space-y-1">
+                      {getAvailableTimeSlots().map((slot, index) => (
+                        <p key={index} className="text-xs text-gray-600">
+                          {slot.dayName}: {slot.startTime} - {slot.endTime}
+                        </p>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-gray-500 italic">
+                      No availability set
+                    </p>
+                  )}
+                </div>
+
+                {/* Show suggested times */}
+                {getSuggestedDateTimes().length > 0 && (
+                  <div className="mt-3">
+                    <p className="text-xs font-medium text-gray-700 mb-2">
+                      Suggested available times:
+                    </p>
+                    <div className="grid grid-cols-1 gap-1">
+                      {getSuggestedDateTimes().map((suggestion, index) => (
+                        <button
+                          key={index}
+                          type="button"
+                          onClick={() => handleFormInputChange('date', suggestion.datetime)}
+                          className="text-left px-2 py-1 text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 rounded border border-blue-200 transition-colors"
+                        >
+                          {suggestion.display}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
               
               <div>
@@ -162,7 +308,13 @@ const SessionBookingModal = ({
             <button
               type="submit"
               onClick={handleSessionFormSubmit}
-              disabled={createSessionMutation.isPending || !sessionForm.topic.trim() || !sessionForm.date || !sessionForm.module.trim()}
+              disabled={
+                createSessionMutation.isPending || 
+                !sessionForm.topic.trim() || 
+                !sessionForm.date || 
+                !sessionForm.module.trim() ||
+                (sessionForm.date && !isDateTimeAvailable(sessionForm.date))
+              }
               className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {createSessionMutation.isPending ? 'Sending...' : 'Send Request'}

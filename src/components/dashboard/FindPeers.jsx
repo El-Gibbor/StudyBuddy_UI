@@ -119,6 +119,9 @@ const FindPeers = () => {
     if (type === 'success') {
       // Auto-clear success message after 3 seconds
       setTimeout(() => setFeedbackMessage(''), 3000);
+    } else if (type === 'error') {
+      // Auto-clear error message after 5 seconds
+      setTimeout(() => setFeedbackMessage(''), 5000);
     }
   };
 
@@ -162,7 +165,11 @@ const FindPeers = () => {
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       {/* Feedback Message */}
       {feedbackMessage && (
-        <div className="mb-4 p-3 bg-green-100 border border-green-300 text-green-700 rounded-md">
+        <div className={`mb-4 p-3 border rounded-md ${
+          feedbackMessage.includes('Failed') || feedbackMessage.includes('error') || feedbackMessage.includes('not available')
+            ? 'bg-red-100 border-red-300 text-red-700'
+            : 'bg-green-100 border-green-300 text-green-700'
+        }`}>
           {feedbackMessage}
         </div>
       )}
