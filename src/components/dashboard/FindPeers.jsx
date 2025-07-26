@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Search, Filter, Star, Calendar, MessageSquare, User, Clock, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Search, Filter, Star, Calendar, MessageSquare, User, Clock, ChevronLeft, ChevronRight, Eye, X } from 'lucide-react';
 import { useStudyBuddiesQuery } from '../../queries';
 import SessionBookingModal from './SessionBookingModal';
 
@@ -34,6 +34,21 @@ const FindPeers = () => {
   const totalCount = studyBuddiesData?.data?.totalCount || 0;
   const totalPages = Math.ceil(totalCount / pageSize);
 
+  // Extract unique skills/modules from all peers
+  const availableSkills = useMemo(() => {
+    const skillsSet = new Set();
+    peers.forEach(peer => {
+      if (peer.skills && Array.isArray(peer.skills)) {
+        peer.skills.forEach(skill => {
+          if (skill && skill.trim()) {
+            skillsSet.add(skill.trim());
+          }
+        });
+      }
+    });
+    return ['All Modules', ...Array.from(skillsSet).sort()];
+  }, [peers]);
+
   // Helper function to format availability
   const formatAvailability = (availability) => {
     if (!availability || availability.length === 0) return 'No availability set';
@@ -57,25 +72,6 @@ const FindPeers = () => {
     })).sort((a, b) => a.dayOfWeek - b.dayOfWeek);
   };
 
-  const modules = [
-    'All Modules',
-    'JavaScript',
-    'Python',
-    'React',
-    'Node.js',
-    'Data Structures',
-    'Algorithms',
-    'Machine Learning',
-    'Database Design',
-    'Web Development',
-    'Mobile Development',
-    'CSS',
-    'HTML',
-    'SQL',
-    'MongoDB',
-    'Git'
-  ];
-
   const availabilityOptions = [
     { value: 'Any time', label: 'Any time' },
     { value: 'today', label: 'Available today' },
@@ -85,6 +81,19 @@ const FindPeers = () => {
     { value: 'weekdays', label: 'Weekdays only' },
     { value: 'weekends', label: 'Weekends only' }
   ];
+
+  // Check if any filters are active
+  const hasActiveFilters = searchTerm.trim() !== '' || 
+                          (selectedModule !== '' && selectedModule !== 'All Modules') || 
+                          (selectedAvailability !== '' && selectedAvailability !== 'Any time');
+
+  // Clear all filters
+  const handleClearFilters = () => {
+    setSearchTerm('');
+    setSelectedModule('');
+    setSelectedAvailability('');
+    setCurrentPage(1);
+  };
 
   const handleRequestSession = (peer) => {
     setSelectedPeer(peer);
@@ -162,7 +171,7 @@ const FindPeers = () => {
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Find Study Peers</h2>
 
         {/* Search and Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
@@ -179,8 +188,8 @@ const FindPeers = () => {
             onChange={(e) => handleFilterChange('module', e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-navy focus:border-transparent"
           >
-            {modules.map(module => (
-              <option key={module} value={module}>{module}</option>
+            {availableSkills.map(skill => (
+              <option key={skill} value={skill}>{skill}</option>
             ))}
           </select>
 
@@ -194,6 +203,28 @@ const FindPeers = () => {
             ))}
           </select>
         </div>
+
+        {/* Filter status and clear button */}
+        {hasActiveFilters && (
+          <div className="flex items-center justify-between mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+            <div className="flex items-center space-x-2 text-sm text-blue-700">
+              <Filter className="w-4 h-4" />
+              <span>
+                Filters active: 
+                {searchTerm.trim() && ` Search: "${searchTerm.trim()}"`}
+                {selectedModule && selectedModule !== 'All Modules' && ` • Skill: ${selectedModule}`}
+                {selectedAvailability && selectedAvailability !== 'Any time' && ` • Availability: ${selectedAvailability}`}
+              </span>
+            </div>
+            <button
+              onClick={handleClearFilters}
+              className="flex items-center space-x-1 text-sm text-blue-600 hover:text-blue-800 font-medium"
+            >
+              <X className="w-4 h-4" />
+              <span>Clear filters</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Peer Cards */}

@@ -12,7 +12,8 @@ const SessionBookingModal = ({
     description: '',
     scheduledDateTime: '',
     duration: 60,
-    sessionType: 'online'
+    sessionType: 'online',
+    meetingLink: ''
   });
 
   const createSessionMutation = useCreateSessionMutation();
@@ -38,7 +39,8 @@ const SessionBookingModal = ({
         description: sessionForm.description.trim() || undefined,
         scheduledDateTime: sessionForm.scheduledDateTime,
         duration: sessionForm.duration,
-        sessionType: sessionForm.sessionType
+        sessionType: sessionForm.sessionType,
+        ...(sessionForm.meetingLink.trim() && { meetingLink: sessionForm.meetingLink.trim() })
       };
 
       await createSessionMutation.mutateAsync(sessionData);
@@ -49,7 +51,8 @@ const SessionBookingModal = ({
         description: '',
         scheduledDateTime: '',
         duration: 60,
-        sessionType: 'online'
+        sessionType: 'online',
+        meetingLink: ''
       });
       
       // Close modal and show success
@@ -74,7 +77,8 @@ const SessionBookingModal = ({
       description: '',
       scheduledDateTime: '',
       duration: 60,
-      sessionType: 'online'
+      sessionType: 'online',
+      meetingLink: ''
     });
     onClose();
   };
@@ -175,6 +179,24 @@ const SessionBookingModal = ({
                   <option value="in_person">In Person</option>
                 </select>
               </div>
+              
+              {sessionForm.sessionType === 'online' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Meeting Link (Optional)
+                  </label>
+                  <input
+                    type="url"
+                    value={sessionForm.meetingLink}
+                    onChange={(e) => handleFormInputChange('meetingLink', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="https://zoom.us/j/... or https://meet.google.com/..."
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Provide a Zoom, Google Meet, or other video conferencing link
+                  </p>
+                </div>
+              )}
             </form>
           </div>
           <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
