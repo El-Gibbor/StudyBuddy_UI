@@ -8,11 +8,9 @@ const SessionBookingModal = ({
   onSuccess 
 }) => {
   const [sessionForm, setSessionForm] = useState({
+    module: '',
     topic: '',
-    description: '',
-    scheduledDateTime: '',
-    duration: 60,
-    sessionType: 'online',
+    date: '',
     meetingLink: ''
   });
 
@@ -28,18 +26,16 @@ const SessionBookingModal = ({
   const handleSessionFormSubmit = async (e) => {
     e.preventDefault();
     
-    if (!sessionForm.topic.trim() || !sessionForm.scheduledDateTime) {
+    if (!sessionForm.topic.trim() || !sessionForm.date || !sessionForm.module.trim()) {
       return;
     }
 
     try {
       const sessionData = {
-        helperId: selectedPeer.id,
+        buddyId: selectedPeer.id,
+        module: sessionForm.module.trim(),
         topic: sessionForm.topic.trim(),
-        description: sessionForm.description.trim() || undefined,
-        scheduledDateTime: sessionForm.scheduledDateTime,
-        duration: sessionForm.duration,
-        sessionType: sessionForm.sessionType,
+        date: sessionForm.date,
         ...(sessionForm.meetingLink.trim() && { meetingLink: sessionForm.meetingLink.trim() })
       };
 
@@ -47,11 +43,9 @@ const SessionBookingModal = ({
       
       // Reset form
       setSessionForm({
+        module: '',
         topic: '',
-        description: '',
-        scheduledDateTime: '',
-        duration: 60,
-        sessionType: 'online',
+        date: '',
         meetingLink: ''
       });
       
@@ -73,11 +67,9 @@ const SessionBookingModal = ({
   const handleClose = () => {
     // Reset form when closing
     setSessionForm({
+      module: '',
       topic: '',
-      description: '',
-      scheduledDateTime: '',
-      duration: 60,
-      sessionType: 'online',
+      date: '',
       meetingLink: ''
     });
     onClose();
@@ -110,100 +102,67 @@ const SessionBookingModal = ({
             <form onSubmit={handleSessionFormSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Session Topic *
+                  Module *
+                </label>
+                <input
+                  type="text"
+                  value={sessionForm.module}
+                  onChange={(e) => handleFormInputChange('module', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="e.g., Data & Decisions, Web Development, etc."
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Topic *
                 </label>
                 <input
                   type="text"
                   value={sessionForm.topic}
                   onChange={(e) => handleFormInputChange('topic', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="What do you need help with?"
+                  placeholder="e.g., SQL Queries, React Components, etc."
                   required
                 />
               </div>
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description (Optional)
+                  Date & Time *
                 </label>
-                <textarea
-                  value={sessionForm.description}
-                  onChange={(e) => handleFormInputChange('description', e.target.value)}
-                  rows="3"
+                <input
+                  type="datetime-local"
+                  value={sessionForm.date}
+                  onChange={(e) => handleFormInputChange('date', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Provide more details about what you need help with..."
+                  required
                 />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Date & Time *
-                  </label>
-                  <input
-                    type="datetime-local"
-                    value={sessionForm.scheduledDateTime}
-                    onChange={(e) => handleFormInputChange('scheduledDateTime', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Duration (minutes)
-                  </label>
-                  <select
-                    value={sessionForm.duration}
-                    onChange={(e) => handleFormInputChange('duration', parseInt(e.target.value))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value={30}>30 minutes</option>
-                    <option value={60}>1 hour</option>
-                    <option value={90}>1.5 hours</option>
-                    <option value={120}>2 hours</option>
-                  </select>
-                </div>
               </div>
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Session Type
+                  Meeting Link (Optional)
                 </label>
-                <select
-                  value={sessionForm.sessionType}
-                  onChange={(e) => handleFormInputChange('sessionType', e.target.value)}
+                <input
+                  type="url"
+                  value={sessionForm.meetingLink}
+                  onChange={(e) => handleFormInputChange('meetingLink', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="online">Online</option>
-                  <option value="in_person">In Person</option>
-                </select>
+                  placeholder="https://zoom.us/j/... or https://meet.google.com/..."
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Provide a Zoom, Google Meet, or other video conferencing link
+                </p>
               </div>
-              
-              {sessionForm.sessionType === 'online' && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Meeting Link (Optional)
-                  </label>
-                  <input
-                    type="url"
-                    value={sessionForm.meetingLink}
-                    onChange={(e) => handleFormInputChange('meetingLink', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="https://zoom.us/j/... or https://meet.google.com/..."
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Provide a Zoom, Google Meet, or other video conferencing link
-                  </p>
-                </div>
-              )}
             </form>
           </div>
           <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
             <button
               type="submit"
               onClick={handleSessionFormSubmit}
-              disabled={createSessionMutation.isPending || !sessionForm.topic.trim() || !sessionForm.scheduledDateTime}
+              disabled={createSessionMutation.isPending || !sessionForm.topic.trim() || !sessionForm.date || !sessionForm.module.trim()}
               className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {createSessionMutation.isPending ? 'Sending...' : 'Send Request'}
