@@ -8,6 +8,11 @@ import Footer from './components/landingPage/Footer';
 import AuthPage from './components/auth/AuthPage';
 import Dashboard from './components/dashboard/Dashboard';
 import ProtectedRoute from './components/route/ProtectedRoute';
+import {
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query'
+
 
 const AppContent = () => {
   const { isAuthenticated } = useAuth();
@@ -19,11 +24,16 @@ const AppContent = () => {
     setShowAuthModal(true);
   };
 
+  const queryClient = new QueryClient()
+
+
   // If user is authenticated, show dashboard
   if (isAuthenticated) {
     return (
       <ProtectedRoute>
-        <Dashboard />
+        <QueryClientProvider client={queryClient}>
+          <Dashboard />
+        </QueryClientProvider>
       </ProtectedRoute>
     );
   }
