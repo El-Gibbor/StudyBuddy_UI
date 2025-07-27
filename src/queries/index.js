@@ -4,6 +4,7 @@ import skillsService from '../services/skills/skills.service';
 import studyBuddyService from '../services/studybuddy/studybuddy.js';
 import sessionsService from '../services/sessions/sessions.service.js';
 import ticketsService from '../services/tickets/tickets.service';
+import notificationsService from '../services/notifications/notifications.service';
 
 const useStatsQuery = () => {
   return useQuery({
@@ -166,6 +167,29 @@ const useTicketCommentsQuery = (id, params = {}, options = {}) => {
   });
 };
 
+// Hook for fetching user notifications
+const useNotificationsQuery = (params = {}, options = {}) => {
+  return useQuery({
+    queryKey: ['notifications', params],
+    queryFn: () => notificationsService.getNotifications(params),
+    staleTime: 30 * 1000, // 30 seconds
+    refetchOnWindowFocus: true, // Refetch when user returns to tab
+    ...options
+  });
+};
+
+// Hook for fetching unread notifications count
+const useUnreadNotificationsCountQuery = (options = {}) => {
+  return useQuery({
+    queryKey: ['notificationsUnreadCount'],
+    queryFn: notificationsService.getUnreadCount,
+    staleTime: 10 * 1000, // 10 seconds - more frequent for count
+    refetchOnWindowFocus: true,
+    refetchInterval: 30 * 1000, // Auto-refetch every 30 seconds
+    ...options
+  });
+};
+
 export {
     useStatsQuery,
     useUpcomingSessionsQuery,
@@ -181,5 +205,7 @@ export {
     useMyCreatedTicketsQuery,
     useMyClaimedTicketsQuery,
     useTicketByIdQuery,
-    useTicketCommentsQuery
+    useTicketCommentsQuery,
+    useNotificationsQuery,
+    useUnreadNotificationsCountQuery
 }

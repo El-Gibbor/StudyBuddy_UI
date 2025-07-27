@@ -58,8 +58,6 @@ const WelcomeSection = ({ user }) => {
       setUpdateError('');
       setUpdateSuccess('');
 
-      console.log('Saving profile:', formData);
-
       // Get user ID from the authenticated user
       const userId = user?.id || user?.userId;
 
@@ -77,8 +75,6 @@ const WelcomeSection = ({ user }) => {
 
       // Call the profile service to update the profile
       const response = await profileService.updateProfile(userId, profileData);
-
-      console.log('Profile updated successfully:', response);
 
       setUpdateSuccess('Profile updated successfully!');
       setShowEditProfile(false);
