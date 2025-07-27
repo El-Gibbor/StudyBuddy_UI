@@ -58,7 +58,14 @@ const TicketCard = ({ ticket, type = 'my', onSelect, compact = false }) => {
         </div>
         
         {!compact && (
-          <Button variant="ghost" size="sm">
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelect();
+            }}
+          >
             View Details
           </Button>
         )}
