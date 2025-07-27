@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import skillsService from '../services/skills/skills.service';
 import studyBuddyService from '../services/studybuddy/studybuddy.js';
 import sessionsService from '../services/sessions/sessions.service.js';
+import ticketsService from '../services/tickets/tickets.service';
 
 // Hook for adding skills
 export const useAddSkillsMutation = () => {
@@ -249,6 +250,102 @@ export const useStartSessionMutation = () => {
     },
     onError: (error) => {
       console.error('Failed to start session:', error);
+    }
+  });
+};
+
+// Ticket Mutations
+
+// Hook for creating a ticket
+export const useCreateTicketMutation = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (ticketData) => ticketsService.createTicket(ticketData),
+    onSuccess: (data) => {
+      // Invalidate tickets queries
+      queryClient.invalidateQueries({ queryKey: ['tickets'] });
+      queryClient.invalidateQueries({ queryKey: ['myCreatedTickets'] });
+    },
+    onError: (error) => {
+      console.error('Failed to create ticket:', error);
+    }
+  });
+};
+
+// Hook for updating a ticket
+export const useUpdateTicketMutation = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ id, updateData }) => ticketsService.updateTicket(id, updateData),
+    onSuccess: (data, variables) => {
+      // Invalidate specific ticket
+      queryClient.invalidateQueries({ queryKey: ['ticket', variables.id] });
+      // Invalidate tickets lists
+      queryClient.invalidateQueries({ queryKey: ['tickets'] });
+      queryClient.invalidateQueries({ queryKey: ['myCreatedTickets'] });
+      queryClient.invalidateQueries({ queryKey: ['myClaimedTickets'] });
+    },
+    onError: (error) => {
+      console.error('Failed to update ticket:', error);
+    }
+  });
+};
+
+// Hook for deleting a ticket
+export const useDeleteTicketMutation = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (id) => ticketsService.deleteTicket(id),
+    onSuccess: (data, id) => {
+      // Invalidate tickets lists
+      queryClient.invalidateQueries({ queryKey: ['tickets'] });
+      queryClient.invalidateQueries({ queryKey: ['myCreatedTickets'] });
+      queryClient.invalidateQueries({ queryKey: ['myClaimedTickets'] });
+      // Remove the specific ticket from cache
+      queryClient.removeQueries({ queryKey: ['ticket', id] });
+    },
+    onError: (error) => {
+      console.error('Failed to delete ticket:', error);
+    }
+  });
+};
+
+// Hook for claiming a ticket
+export const useClaimTicketMutation = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (id) => ticketsService.claimTicket(id),
+    onSuccess: (data, id) => {
+      // Invalidate specific ticket
+      queryClient.invalidateQueries({ queryKey: ['ticket', id] });
+      // Invalidate tickets lists
+      queryClient.invalidateQueries({ queryKey: ['tickets'] });
+      queryClient.invalidateQueries({ queryKey: ['myClaimedTickets'] });
+    },
+    onError: (error) => {
+      console.error('Failed to claim ticket:', error);
+    }
+  });
+};
+
+// Hook for adding a comment to a ticket
+export const useAddTicketCommentMutation = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ id, commentData }) => ticketsService.addComment(id, commentData),
+    onSuccess: (data, variables) => {
+      // Invalidate ticket comments
+      queryClient.invalidateQueries({ queryKey: ['ticketComments', variables.id] });
+      // Invalidate specific ticket (comment count might change)
+      queryClient.invalidateQueries({ queryKey: ['ticket', variables.id] });
+    },
+    onError: (error) => {
+      console.error('Failed to add comment:', error);
     }
   });
 };
