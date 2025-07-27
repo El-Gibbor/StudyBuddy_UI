@@ -44,7 +44,23 @@ const TicketDetails = ({ ticketId, onBack }) => {
       setCommentText('');
     } catch (error) {
       console.error('Failed to add comment:', error);
-      alert('Failed to add comment. Please try again.');
+      
+      // Handle specific API errors
+      const errorMessage = error?.response?.data?.error?.message || 
+                          error?.message || 
+                          'Failed to add comment. Please try again.';
+      
+      if (errorMessage.includes('not found')) {
+        alert('This ticket could not be found. It may have been deleted.');
+      } else if (errorMessage.includes('closed') || errorMessage.includes('resolved')) {
+        alert('Cannot add comments to a closed or resolved ticket.');
+      } else if (errorMessage.includes('too long') || errorMessage.includes('length')) {
+        alert('Your comment is too long. Please make it shorter and try again.');
+      } else if (errorMessage.includes('permission') || errorMessage.includes('not authorized')) {
+        alert('You do not have permission to comment on this ticket.');
+      } else {
+        alert(errorMessage);
+      }
     }
   };
 
@@ -53,7 +69,24 @@ const TicketDetails = ({ ticketId, onBack }) => {
       await claimTicketMutation.mutateAsync(ticketId);
     } catch (error) {
       console.error('Failed to claim ticket:', error);
-      alert('Failed to claim ticket. Please try again.');
+      
+      // Handle specific API errors
+      const errorMessage = error?.response?.data?.error?.message || 
+                          error?.message || 
+                          'Failed to claim ticket. Please try again.';
+      
+      // Show user-friendly error messages
+      if (errorMessage.includes('Cannot claim your own ticket')) {
+        alert('You cannot claim your own ticket. Only other users can help with your tickets.');
+      } else if (errorMessage.includes('already claimed')) {
+        alert('This ticket has already been claimed by another user.');
+      } else if (errorMessage.includes('not found')) {
+        alert('This ticket could not be found. It may have been deleted.');
+      } else if (errorMessage.includes('closed') || errorMessage.includes('resolved')) {
+        alert('This ticket is already closed or resolved and cannot be claimed.');
+      } else {
+        alert(errorMessage);
+      }
     }
   };
 
@@ -66,7 +99,23 @@ const TicketDetails = ({ ticketId, onBack }) => {
       setShowActions(false);
     } catch (error) {
       console.error('Failed to update ticket status:', error);
-      alert('Failed to update ticket status. Please try again.');
+      
+      // Handle specific API errors
+      const errorMessage = error?.response?.data?.error?.message || 
+                          error?.message || 
+                          'Failed to update ticket status. Please try again.';
+      
+      if (errorMessage.includes('permission') || errorMessage.includes('not authorized')) {
+        alert('You do not have permission to update this ticket status.');
+      } else if (errorMessage.includes('not found')) {
+        alert('This ticket could not be found. It may have been deleted.');
+      } else if (errorMessage.includes('invalid status')) {
+        alert('Invalid status update. Please refresh the page and try again.');
+      } else {
+        alert(errorMessage);
+      }
+      
+      setShowActions(false);
     }
   };
 

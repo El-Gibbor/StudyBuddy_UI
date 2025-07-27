@@ -3,6 +3,7 @@ import { Ticket, Clock, CheckCircle, AlertCircle, User, MessageSquare, Plus, X }
 import { useMyCreatedTicketsQuery, useMyClaimedTicketsQuery } from '../../queries';
 import { useCreateTicketMutation } from '../../mutations';
 import TicketDetails from './TicketDetails';
+import TicketBrowser from './TicketBrowser';
 
 const SupportTickets = ({ compact = false }) => {
   const [activeTab, setActiveTab] = useState('my-tickets');
@@ -104,6 +105,25 @@ const SupportTickets = ({ compact = false }) => {
       });
     } catch (error) {
       console.error('Failed to create ticket:', error);
+      
+      // Handle specific API errors
+      const errorMessage = error?.response?.data?.error?.message || 
+                          error?.message || 
+                          'Failed to create ticket. Please try again.';
+      
+      if (errorMessage.includes('required') || errorMessage.includes('missing')) {
+        alert('Please fill in all required fields (Module, Topic, and Description).');
+      } else if (errorMessage.includes('too long') || errorMessage.includes('length')) {
+        alert('One or more fields are too long. Please shorten your input and try again.');
+      } else if (errorMessage.includes('duplicate')) {
+        alert('You already have a similar ticket. Please check your existing tickets.');
+      } else if (errorMessage.includes('permission') || errorMessage.includes('not authorized')) {
+        alert('You do not have permission to create tickets. Please contact support.');
+      } else if (errorMessage.includes('rate limit') || errorMessage.includes('too many')) {
+        alert('You have created too many tickets recently. Please wait before creating another one.');
+      } else {
+        alert(errorMessage);
+      }
     }
   };
 
@@ -205,6 +225,16 @@ const SupportTickets = ({ compact = false }) => {
           >
             Tickets I've Claimed ({claimedTickets.length})
           </button>
+          <button
+            onClick={() => setActiveTab('browse-tickets')}
+            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+              activeTab === 'browse-tickets'
+                ? 'bg-white text-navy shadow-sm'
+                : 'text-gray-600 hover:text-navy'
+            }`}
+          >
+            Browse Available
+          </button>
         </div>
       )}
 
@@ -255,6 +285,10 @@ const SupportTickets = ({ compact = false }) => {
                   claimedTickets.map(ticket => renderTicketCard(ticket, 'claimed'))
                 )}
               </>
+            )}
+
+            {activeTab === 'browse-tickets' && (
+              <TicketBrowser onTicketSelect={setSelectedTicketId} />
             )}
           </>
         )}

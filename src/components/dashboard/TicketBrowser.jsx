@@ -63,7 +63,26 @@ const TicketBrowser = () => {
       await claimTicketMutation.mutateAsync(ticketId);
     } catch (error) {
       console.error('Failed to claim ticket:', error);
-      alert('Failed to claim ticket. Please try again.');
+      
+      // Handle specific API errors
+      const errorMessage = error?.response?.data?.error?.message || 
+                          error?.message || 
+                          'Failed to claim ticket. Please try again.';
+      
+      // Show user-friendly error messages
+      if (errorMessage.includes('Cannot claim your own ticket')) {
+        alert('You cannot claim your own ticket. Only other users can help with your tickets.');
+      } else if (errorMessage.includes('already claimed')) {
+        alert('This ticket has already been claimed by another user.');
+      } else if (errorMessage.includes('not found')) {
+        alert('This ticket could not be found. It may have been deleted.');
+      } else if (errorMessage.includes('closed') || errorMessage.includes('resolved')) {
+        alert('This ticket is already closed or resolved and cannot be claimed.');
+      } else if (errorMessage.includes('permission') || errorMessage.includes('not authorized')) {
+        alert('You do not have permission to claim tickets. Please contact support.');
+      } else {
+        alert(errorMessage);
+      }
     }
   };
 
