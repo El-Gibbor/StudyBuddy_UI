@@ -8,13 +8,13 @@ import AvailabilityEditor from './AvailabilityEditor';
 import NotificationsFeed from './NotificationsFeed';
 import SkillsManagement from './SkillsManagement';
 import SessionsManagement from './SessionsManagement';
-import { Calendar, Users, Ticket, Search, Clock, Bell, BookOpen } from 'lucide-react';
+import { Calendar, Users, Ticket, Search, Clock, Bell, BookOpen, LogOut } from 'lucide-react';
 import availabilityService from '../../services/availability/availability.service';
 import skillsService from '../../services/skills/skills.service';
 import { useUnreadNotificationsCountQuery } from '../../queries';
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [notifications, setNotifications] = useState([]);
   const [userAvailabilities, setUserAvailabilities] = useState([]);
@@ -307,6 +307,17 @@ const Dashboard = () => {
                 );
               })}
             </nav>
+            
+            {/* Logout Button */}
+            <div className="px-2 mt-auto">
+              <button
+                onClick={signOut}
+                className="group flex items-center px-2 py-2 text-sm font-medium rounded-md w-full text-left transition-colors text-gray-600 hover:bg-gray-50 hover:text-red-600"
+              >
+                <LogOut className="mr-3 flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-red-600" />
+                Logout
+              </button>
+            </div>
           </div>
         </div>
 
