@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { Ticket, Clock, CheckCircle, AlertCircle, User, MessageSquare, Plus, X } from 'lucide-react';
 import { useMyCreatedTicketsQuery, useMyClaimedTicketsQuery } from '../../queries';
 import { useCreateTicketMutation } from '../../mutations';
+import TicketDetails from './TicketDetails';
 
 const SupportTickets = ({ compact = false }) => {
   const [activeTab, setActiveTab] = useState('my-tickets');
   const [showCreateTicket, setShowCreateTicket] = useState(false);
+  const [selectedTicketId, setSelectedTicketId] = useState(null);
   const [ticketForm, setTicketForm] = useState({
     module: '',
     topic: '',
@@ -23,6 +25,16 @@ const SupportTickets = ({ compact = false }) => {
   const loading = myTicketsLoading || claimedTicketsLoading;
   const myTickets = myTicketsData?.data || [];
   const claimedTickets = claimedTicketsData?.data || [];
+
+  // If a ticket is selected, show the details view
+  if (selectedTicketId) {
+    return (
+      <TicketDetails 
+        ticketId={selectedTicketId} 
+        onBack={() => setSelectedTicketId(null)} 
+      />
+    );
+  }
 
   if (loading) {
     return (
@@ -146,7 +158,10 @@ const SupportTickets = ({ compact = false }) => {
             </div>
           )}
         </div>
-        <button className="text-navy hover:text-navy-light font-medium">
+        <button 
+          onClick={() => setSelectedTicketId(ticket.id)}
+          className="text-navy hover:text-navy-light font-medium"
+        >
           View Details
         </button>
       </div>
