@@ -19,7 +19,8 @@ import {
   PriorityBadge,
   LoadingCard,
   EmptyState,
-  useToast 
+  useToast,
+  Pagination 
 } from '../ui';
 import { formatDateTime, formatRelativeTime } from '../../utils/formatters';
 import { getErrorMessage } from '../../utils/errorHandling';
@@ -29,10 +30,15 @@ const TicketDetails = ({ ticketId, onBack }) => {
   const { showSuccess, showError } = useToast();
   const [commentText, setCommentText] = useState('');
   const [showActions, setShowActions] = useState(false);
+  const [commentsPage, setCommentsPage] = useState(1);
+  const commentsPageSize = 10;
 
   // Queries
   const { data: ticketData, isLoading: ticketLoading, error: ticketError } = useTicketByIdQuery(ticketId);
-  const { data: commentsData, isLoading: commentsLoading } = useTicketCommentsQuery(ticketId);
+  const { data: commentsData, isLoading: commentsLoading } = useTicketCommentsQuery(ticketId, {
+    page: commentsPage,
+    limit: commentsPageSize
+  });
 
   // Mutations
   const addCommentMutation = useAddTicketCommentMutation();
@@ -41,6 +47,11 @@ const TicketDetails = ({ ticketId, onBack }) => {
 
   const ticket = ticketData?.data;
   const comments = commentsData?.data || [];
+  const commentsPagination = commentsData?.meta?.pagination || {
+    page: 1,
+    totalPages: 1,
+    total: 0
+  };
   const loading = ticketLoading || commentsLoading;
 
   const isCreator = ticket?.createdBy?.id === user?.id;
@@ -105,10 +116,15 @@ const TicketDetails = ({ ticketId, onBack }) => {
         commentData: { content: commentText }
       });
       setCommentText('');
+      setCommentsPage(1); // Reset to first page to see new comment
       showSuccess('Comment added successfully!');
     } catch (error) {
       showError(getErrorMessage(error));
     }
+  };
+
+  const handleCommentsPageChange = (page) => {
+    setCommentsPage(page);
   };
 
   return (
@@ -281,6 +297,20 @@ const TicketDetails = ({ ticketId, onBack }) => {
                   </div>
                 ))}
               </div>
+            )}
+            
+            {/* Comments Pagination */}
+            {comments.length > 0 && (
+              <Pagination
+                currentPage={commentsPage}
+                totalPages={commentsPagination.totalPages}
+                totalItems={commentsPagination.total}
+                itemsPerPage={commentsPageSize}
+                onPageChange={handleCommentsPageChange}
+                showInfo={false}
+                size="sm"
+                className="mt-4"
+              />
             )}
           </div>
         </CardContent>

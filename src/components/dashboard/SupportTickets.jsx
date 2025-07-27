@@ -7,7 +7,8 @@ import {
   Button, 
   LoadingCard, 
   EmptyState, 
-  useToast 
+  useToast,
+  Pagination 
 } from '../ui';
 import { getErrorMessage } from '../../utils/errorHandling';
 import TicketDetails from './TicketDetails';
@@ -20,11 +21,20 @@ const SupportTickets = ({ compact = false }) => {
   const [activeTab, setActiveTab] = useState('my-tickets');
   const [showCreateTicket, setShowCreateTicket] = useState(false);
   const [selectedTicketId, setSelectedTicketId] = useState(null);
+  const [myTicketsPage, setMyTicketsPage] = useState(1);
+  const [claimedTicketsPage, setClaimedTicketsPage] = useState(1);
   const { showSuccess, showError } = useToast();
+  const ticketsPageSize = 10;
 
   // Queries
-  const { data: myTicketsData, isLoading: myTicketsLoading } = useMyCreatedTicketsQuery();
-  const { data: claimedTicketsData, isLoading: claimedTicketsLoading } = useMyClaimedTicketsQuery();
+  const { data: myTicketsData, isLoading: myTicketsLoading } = useMyCreatedTicketsQuery({
+    page: myTicketsPage,
+    limit: ticketsPageSize
+  });
+  const { data: claimedTicketsData, isLoading: claimedTicketsLoading } = useMyClaimedTicketsQuery({
+    page: claimedTicketsPage,
+    limit: ticketsPageSize
+  });
 
   // Mutations
   const createTicketMutation = useCreateTicketMutation();
@@ -32,6 +42,8 @@ const SupportTickets = ({ compact = false }) => {
   const loading = myTicketsLoading || claimedTicketsLoading;
   const myTickets = Array.isArray(myTicketsData?.data) ? myTicketsData.data : [];
   const claimedTickets = Array.isArray(claimedTicketsData?.data) ? claimedTicketsData.data : [];
+  const myTicketsPagination = myTicketsData?.meta?.pagination || { page: 1, totalPages: 1, total: 0 };
+  const claimedTicketsPagination = claimedTicketsData?.meta?.pagination || { page: 1, totalPages: 1, total: 0 };
 
   // If a ticket is selected, show the details view
   if (selectedTicketId) {
@@ -51,10 +63,19 @@ const SupportTickets = ({ compact = false }) => {
     try {
       await createTicketMutation.mutateAsync(ticketData);
       setShowCreateTicket(false);
+      setMyTicketsPage(1); // Reset to first page to see new ticket
       showSuccess('Ticket created successfully!');
     } catch (error) {
       showError(getErrorMessage(error));
     }
+  };
+
+  const handleMyTicketsPageChange = (page) => {
+    setMyTicketsPage(page);
+  };
+
+  const handleClaimedTicketsPageChange = (page) => {
+    setClaimedTicketsPage(page);
   };
 
   const renderTicketList = (tickets, type) => {
@@ -92,6 +113,18 @@ const SupportTickets = ({ compact = false }) => {
             onSelect={() => setSelectedTicketId(ticket.id)}
           />
         ))}
+        
+        {/* Pagination for ticket lists */}
+        {!compact && (
+          <Pagination
+            currentPage={type === 'my' ? myTicketsPage : claimedTicketsPage}
+            totalPages={type === 'my' ? myTicketsPagination.totalPages : claimedTicketsPagination.totalPages}
+            totalItems={type === 'my' ? myTicketsPagination.total : claimedTicketsPagination.total}
+            itemsPerPage={ticketsPageSize}
+            onPageChange={type === 'my' ? handleMyTicketsPageChange : handleClaimedTicketsPageChange}
+            className="mt-4"
+          />
+        )}
       </div>
     );
   };

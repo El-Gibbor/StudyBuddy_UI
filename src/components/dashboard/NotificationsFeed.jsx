@@ -9,14 +9,17 @@ import {
   Button, 
   LoadingCard, 
   EmptyState,
-  useToast 
+  useToast,
+  Pagination 
 } from '../ui';
 import { formatRelativeTime } from '../../utils/formatters';
 import { getErrorMessage } from '../../utils/errorHandling';
 
 const NotificationsFeed = ({ compact = false }) => {
   const [filter, setFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
   const { showSuccess, showError } = useToast();
+  const pageSize = compact ? 5 : 10;
 
   // Queries - Add error handling and fallbacks
   const { 
@@ -26,7 +29,8 @@ const NotificationsFeed = ({ compact = false }) => {
     refetch: refetchNotifications 
   } = useNotificationsQuery({ 
     read: filter === 'unread' ? false : filter === 'read' ? true : undefined,
-    limit: compact ? 5 : 20
+    page: currentPage,
+    limit: pageSize
   }, {
     retry: 1,
     staleTime: 30 * 1000,
@@ -51,7 +55,22 @@ const NotificationsFeed = ({ compact = false }) => {
   const markAllAsReadMutation = useMarkAllNotificationsReadMutation();
 
   const notifications = Array.isArray(notificationsData?.data?.notifications) ? notificationsData.data.notifications : [];
-  const unreadCount = notificationsData?.data?.unreadCount || unreadCountData?.data?.count || unreadCountData?.count || 0;
+  const unreadCount = notificationsData?.data?.unreadCount || unreadCountData?.data?.unreadCount || 0;
+  const pagination = notificationsData?.meta?.pagination || {
+    page: 1,
+    totalPages: 1,
+    total: 0
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  // Reset page when filter changes
+  const handleFilterChange = (newFilter) => {
+    setFilter(newFilter);
+    setCurrentPage(1);
+  };
 
   if (notificationsLoading) {
     return <LoadingCard message="Loading notifications..." />;
@@ -251,7 +270,7 @@ const NotificationsFeed = ({ compact = false }) => {
           ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setFilter(tab.id)}
+              onClick={() => handleFilterChange(tab.id)}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
                 filter === tab.id
                   ? 'bg-white text-navy shadow-sm'
@@ -314,6 +333,18 @@ const NotificationsFeed = ({ compact = false }) => {
               </div>
             ))}
           </div>
+        )}
+        
+        {/* Pagination for non-compact view */}
+        {!compact && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={pagination.totalPages}
+            totalItems={pagination.total}
+            itemsPerPage={pageSize}
+            onPageChange={handlePageChange}
+            className="mt-6"
+          />
         )}
       </CardContent>
     </Card>

@@ -8,14 +8,12 @@ import {
   AlertCircle, 
   User, 
   MessageSquare, 
-  Star,
-  ChevronLeft,
-  ChevronRight
+  Star
 } from 'lucide-react';
 import { useTicketsQuery } from '../../queries';
 import { useClaimTicketMutation } from '../../mutations';
 import { useAuth } from '../auth/AuthContext';
-import { useToast } from '../ui';
+import { useToast, Pagination } from '../ui';
 import { getErrorMessage } from '../../utils/errorHandling';
 import TicketDetails from './TicketDetails';
 
@@ -311,52 +309,14 @@ const TicketBrowser = ({ onTicketSelect }) => {
       )}
 
       {/* Pagination */}
-      {tickets.length > 0 && pagination.totalPages > 1 && (
-        <div className="mt-6 flex items-center justify-between">
-          <div className="text-sm text-gray-700">
-            Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, pagination.total)} of {pagination.total} tickets
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <ChevronLeft className="w-4 h-4 mr-1" />
-              Previous
-            </button>
-            
-            <div className="flex items-center space-x-1">
-              {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
-                const page = i + 1;
-                return (
-                  <button
-                    key={page}
-                    onClick={() => handlePageChange(page)}
-                    className={`px-3 py-2 text-sm font-medium rounded-md ${
-                      currentPage === page
-                        ? 'bg-blue-600 text-white border border-blue-600'
-                        : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
-                    }`}
-                  >
-                    {page}
-                  </button>
-                );
-              })}
-            </div>
-            
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === pagination.totalPages}
-              className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Next
-              <ChevronRight className="w-4 h-4 ml-1" />
-            </button>
-          </div>
-        </div>
-      )}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={pagination.totalPages}
+        totalItems={pagination.total}
+        itemsPerPage={pageSize}
+        onPageChange={handlePageChange}
+        className="mt-6"
+      />
     </div>
   );
 };
