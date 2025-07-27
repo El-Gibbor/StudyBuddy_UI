@@ -8,6 +8,7 @@ import Footer from './components/landingPage/Footer';
 import AuthPage from './components/auth/AuthPage';
 import Dashboard from './components/dashboard/Dashboard';
 import ProtectedRoute from './components/route/ProtectedRoute';
+import { ToastProvider } from './components/ui/Toast';
 import {
   QueryClient,
   QueryClientProvider,
@@ -83,7 +84,9 @@ const AppContent = () => {
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <ToastProvider>
+        <AppContent />
+      </ToastProvider>
     </AuthProvider>
   );
 }
