@@ -56,10 +56,8 @@ export const AuthProvider = ({ children }) => {
                 availabilities: userData.availableTimeSlots || []
             };
 
-            console.log('Sending registration payload:', registrationPayload);
             const res = await authService.register(registrationPayload);
             const { data } = res;
-            console.log('Registration response:', data);
             return { success: true, data };
         } catch (error) {
             console.error('Registration error:', error);
@@ -118,7 +116,6 @@ export const AuthProvider = ({ children }) => {
         try {
            const res = await authService.login(email, password);
             const { data } = res;
-            console.log('Login data:', data);
 
             // Store auth data
             if (data.accessToken) {

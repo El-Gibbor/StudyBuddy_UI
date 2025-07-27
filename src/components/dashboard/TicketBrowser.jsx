@@ -15,10 +15,13 @@ import {
 import { useTicketsQuery } from '../../queries';
 import { useClaimTicketMutation } from '../../mutations';
 import { useAuth } from '../auth/AuthContext';
+import { useToast } from '../ui';
+import { getErrorMessage } from '../../utils/errorHandling';
 import TicketDetails from './TicketDetails';
 
-const TicketBrowser = () => {
+const TicketBrowser = ({ onTicketSelect }) => {
   const { user } = useAuth();
+  const { showSuccess, showError } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
@@ -40,7 +43,7 @@ const TicketBrowser = () => {
   const { data: ticketsData, isLoading, error } = useTicketsQuery(queryParams);
   const claimTicketMutation = useClaimTicketMutation();
 
-  const tickets = ticketsData?.data || [];
+  const tickets = ticketsData?.data?.tickets || [];
   const pagination = ticketsData?.meta?.pagination || {
     page: 1,
     limit: 10,
@@ -48,8 +51,8 @@ const TicketBrowser = () => {
     totalPages: 1
   };
 
-  // If a ticket is selected, show the details view
-  if (selectedTicketId) {
+  // If a ticket is selected and we're in standalone mode, show the details view
+  if (selectedTicketId && !onTicketSelect) {
     return (
       <TicketDetails 
         ticketId={selectedTicketId} 
@@ -58,31 +61,20 @@ const TicketBrowser = () => {
     );
   }
 
+  const handleSelectTicket = (ticketId) => {
+    if (onTicketSelect) {
+      onTicketSelect(ticketId);
+    } else {
+      setSelectedTicketId(ticketId);
+    }
+  };
+
   const handleClaimTicket = async (ticketId) => {
     try {
       await claimTicketMutation.mutateAsync(ticketId);
+      showSuccess('Ticket claimed successfully!');
     } catch (error) {
-      console.error('Failed to claim ticket:', error);
-      
-      // Handle specific API errors
-      const errorMessage = error?.response?.data?.error?.message || 
-                          error?.message || 
-                          'Failed to claim ticket. Please try again.';
-      
-      // Show user-friendly error messages
-      if (errorMessage.includes('Cannot claim your own ticket')) {
-        alert('You cannot claim your own ticket. Only other users can help with your tickets.');
-      } else if (errorMessage.includes('already claimed')) {
-        alert('This ticket has already been claimed by another user.');
-      } else if (errorMessage.includes('not found')) {
-        alert('This ticket could not be found. It may have been deleted.');
-      } else if (errorMessage.includes('closed') || errorMessage.includes('resolved')) {
-        alert('This ticket is already closed or resolved and cannot be claimed.');
-      } else if (errorMessage.includes('permission') || errorMessage.includes('not authorized')) {
-        alert('You do not have permission to claim tickets. Please contact support.');
-      } else {
-        alert(errorMessage);
-      }
+      showError(getErrorMessage(error));
     }
   };
 
@@ -306,7 +298,7 @@ const TicketBrowser = () => {
                     </button>
                   )}
                   <button
-                    onClick={() => setSelectedTicketId(ticket.id)}
+                    onClick={() => handleSelectTicket(ticket.id)}
                     className="text-navy hover:text-navy-light font-medium text-sm"
                   >
                     View Details

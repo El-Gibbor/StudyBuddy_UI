@@ -49,10 +49,10 @@ const TicketCard = ({ ticket, type = 'my', onSelect, compact = false }) => {
             </div>
           )}
           
-          {ticket.creator && type === 'claimed' && (
+          {ticket.createdBy && type === 'claimed' && (
             <div className="flex items-center space-x-1">
               <User className="w-4 h-4" />
-              <span>By {ticket.creator.name}</span>
+              <span>By {ticket.createdBy.name}</span>
             </div>
           )}
         </div>

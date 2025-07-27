@@ -8,7 +8,6 @@ const LandingPage = ({ onShowAuth }) => {
     const handleGetStarted = () => {
         if (isAuthenticated) {
             // User is already authenticated, redirect to dashboard or main app
-            console.log("User is authenticated, redirect to dashboard");
         } else {
             // Show authentication modal with signup mode
             onShowAuth('signup');
@@ -16,7 +15,6 @@ const LandingPage = ({ onShowAuth }) => {
     };
 
     const handleLearnMore = () => {
-        console.log("Learn More action triggered");
         // Scroll to features section
         document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
     };

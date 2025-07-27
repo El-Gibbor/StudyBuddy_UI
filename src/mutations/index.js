@@ -3,6 +3,7 @@ import skillsService from '../services/skills/skills.service';
 import studyBuddyService from '../services/studybuddy/studybuddy.js';
 import sessionsService from '../services/sessions/sessions.service.js';
 import ticketsService from '../services/tickets/tickets.service';
+import notificationsService from '../services/notifications/notifications.service';
 
 // Hook for adding skills
 export const useAddSkillsMutation = () => {
@@ -346,6 +347,40 @@ export const useAddTicketCommentMutation = () => {
     },
     onError: (error) => {
       console.error('Failed to add comment:', error);
+    }
+  });
+};
+
+// Hook for marking a notification as read
+export const useMarkNotificationReadMutation = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (id) => notificationsService.markAsRead(id),
+    onSuccess: (data, variables) => {
+      // Invalidate notifications queries
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['notificationsUnreadCount'] });
+    },
+    onError: (error) => {
+      console.error('Failed to mark notification as read:', error);
+    }
+  });
+};
+
+// Hook for marking all notifications as read
+export const useMarkAllNotificationsReadMutation = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: () => notificationsService.markAllAsRead(),
+    onSuccess: () => {
+      // Invalidate notifications queries
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['notificationsUnreadCount'] });
+    },
+    onError: (error) => {
+      console.error('Failed to mark all notifications as read:', error);
     }
   });
 };
