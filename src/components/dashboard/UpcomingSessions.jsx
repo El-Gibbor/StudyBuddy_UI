@@ -1,17 +1,48 @@
 import React, { useState } from 'react';
 import { Calendar, Clock, Video, User, MapPin, ChevronRight } from 'lucide-react';
+import { useAuth } from '../auth/AuthContext';
 import { useMySessionsQuery } from '../../queries';
 
 const UpcomingSessions = ({ compact = false }) => {
+  const { user } = useAuth();
   const [selectedView, setSelectedView] = useState('list');
 
   // Query for upcoming sessions
   const { data: sessionsData, isLoading: loading, error } = useMySessionsQuery({
-    status: 'confirmed,in_progress',
+    status: 'PENDING,CONFIRMED,IN_PROGRESS',
     limit: compact ? 3 : 10
   });
 
-  const sessions = sessionsData?.data?.sessions || [];
+
+  // Process the API response to combine asBuddy and asLearner sessions
+  const sessions = React.useMemo(() => {
+    if (!sessionsData?.data || !Array.isArray(sessionsData.data) || !user?.id) return [];
+    
+    // Map sessions and determine user role based on current user context
+    return sessionsData.data.map(session => {
+      // Determine if current user is the buddy (helper) or learner
+      const isHelper = session.buddyId === user.id;
+      const isLearner = session.learnerId === user.id;
+      
+      return {
+        id: session.id,
+        title: `${session.module}: ${session.topic}`,
+        type: isHelper ? 'helper' : 'learner',
+        peerName: isHelper ? session.learner?.name : session.buddy?.name,
+        peerImage: (isHelper ? session.learner?.avatarUrl : session.buddy?.avatarUrl) || 
+                  `https://ui-avatars.com/api/?name=${encodeURIComponent((isHelper ? session.learner?.name : session.buddy?.name) || 'U')}&background=3B82F6&color=fff`,
+        date: session.date,
+        duration: 60, // Default duration since it's not in API response
+        meetingLink: session.meetingLink,
+        status: session.status,
+        module: session.module,
+        topic: session.topic,
+        calendarEventUrl: session.calendarEventUrl,
+        createdAt: session.createdAt
+      };
+    }).sort((a, b) => new Date(a.date) - new Date(b.date));
+  }, [sessionsData]);
+
 
   if (loading) {
     return (
@@ -49,10 +80,8 @@ const UpcomingSessions = ({ compact = false }) => {
     });
   };
 
-  const formatTime = (timeString) => {
-    const [hours, minutes] = timeString.split(':');
-    const date = new Date();
-    date.setHours(parseInt(hours), parseInt(minutes));
+  const formatTime = (dateString) => {
+    const date = new Date(dateString);
     return date.toLocaleTimeString('en-US', {
       hour: 'numeric',
       minute: '2-digit',
@@ -66,6 +95,23 @@ const UpcomingSessions = ({ compact = false }) => {
 
   const getSessionTypeLabel = (type) => {
     return type === 'helper' ? 'Helping' : 'Learning';
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'PENDING':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'CONFIRMED':
+        return 'bg-green-100 text-green-800';
+      case 'IN_PROGRESS':
+        return 'bg-blue-100 text-blue-800';
+      case 'COMPLETED':
+        return 'bg-gray-100 text-gray-800';
+      case 'CANCELLED':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
   };
 
   return (
@@ -136,7 +182,7 @@ const UpcomingSessions = ({ compact = false }) => {
                     </div>
                     <div className="flex items-center space-x-1">
                       <Clock className="w-4 h-4" />
-                      <span>{formatTime(session.time)} ({session.duration}min)</span>
+                      <span>{formatTime(session.date)} ({session.duration}min)</span>
                     </div>
                   </div>
 
@@ -148,10 +194,22 @@ const UpcomingSessions = ({ compact = false }) => {
                     />
                     <div className="flex-1">
                       <div className="flex items-center space-x-2">
-                        <button className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 text-sm font-medium">
-                          <Video className="w-4 h-4" />
-                          <span>Join Meeting</span>
-                        </button>
+                        {session.meetingLink ? (
+                          <a
+                            href={session.meetingLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 text-sm font-medium"
+                          >
+                            <Video className="w-4 h-4" />
+                            <span>Join Meeting</span>
+                          </a>
+                        ) : (
+                          <button className="flex items-center space-x-1 text-gray-400 text-sm font-medium cursor-not-allowed">
+                            <Video className="w-4 h-4" />
+                            <span>Meeting Link Pending</span>
+                          </button>
+                        )}
                         <span className="text-gray-300">•</span>
                         <button className="text-gray-600 hover:text-gray-800 text-sm">
                           Reschedule
