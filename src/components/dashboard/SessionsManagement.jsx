@@ -11,8 +11,11 @@ import {
   Filter,
   Search,
   Eye,
-  MoreHorizontal
+  MoreHorizontal,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
+import { useAuth } from '../auth/AuthContext';
 import { useMySessionsQuery } from '../../queries';
 import { 
   useConfirmSessionMutation, 
@@ -23,9 +26,12 @@ import {
 } from '../../mutations';
 
 const SessionsManagement = () => {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(10);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [selectedSession, setSelectedSession] = useState(null);
   const [feedbackForm, setFeedbackForm] = useState({
@@ -36,12 +42,22 @@ const SessionsManagement = () => {
 
   // Query parameters based on filters
   const queryParams = {
+    page: currentPage,
+    limit: pageSize,
     ...(searchTerm.trim() && { search: searchTerm.trim() }),
     ...(statusFilter && statusFilter !== 'all' && { status: statusFilter }),
     ...(activeTab !== 'all' && { type: activeTab })
   };
 
   const { data: sessionsData, isLoading, error } = useMySessionsQuery(queryParams);
+
+  // Extract pagination metadata
+  const pagination = sessionsData?.meta?.pagination || {
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 1
+  };
 
   // Mutations
   const confirmSessionMutation = useConfirmSessionMutation();
@@ -50,8 +66,28 @@ const SessionsManagement = () => {
   const completeSessionMutation = useCompleteSessionMutation();
   const cancelSessionMutation = useCancelSessionMutation();
 
-  // Extract sessions from API response
-  const sessions = sessionsData?.data?.sessions || [];
+  // Extract sessions from API response and transform to include userRole
+  const sessions = React.useMemo(() => {
+    if (!sessionsData?.data || !user?.id) return [];
+    
+    return sessionsData.data.map(session => {
+      // Determine user role based on current user ID
+      const userRole = session.buddyId === user.id ? 'helper' : 'learner';
+      
+      return {
+        ...session,
+        userRole,
+        // Map the API fields to what the component expects
+        scheduledDateTime: session.date,
+        duration: 60, // Default duration, adjust as needed
+        description: `${session.module} - ${session.topic}`,
+        helper: session.buddy,
+        learner: session.learner,
+        // Convert status to lowercase to match component expectations
+        status: session.status.toLowerCase()
+      };
+    });
+  }, [sessionsData, user?.id]);
 
   const tabs = [
     { id: 'all', label: 'All Sessions', count: sessions.length },
@@ -67,6 +103,59 @@ const SessionsManagement = () => {
     { value: 'completed', label: 'Completed' },
     { value: 'cancelled', label: 'Cancelled' }
   ];
+
+  // Reset pagination when filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter, activeTab]);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    // Scroll to top when page changes
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      handlePageChange(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < pagination.totalPages) {
+      handlePageChange(currentPage + 1);
+    }
+  };
+
+  const getPageNumbers = () => {
+    const delta = 2;
+    const range = [];
+    const rangeWithDots = [];
+
+    for (
+      let i = Math.max(2, currentPage - delta);
+      i <= Math.min(pagination.totalPages - 1, currentPage + delta);
+      i++
+    ) {
+      range.push(i);
+    }
+
+    if (currentPage - delta > 2) {
+      rangeWithDots.push(1, '...');
+    } else {
+      rangeWithDots.push(1);
+    }
+
+    rangeWithDots.push(...range);
+
+    if (currentPage + delta < pagination.totalPages - 1) {
+      rangeWithDots.push('...', pagination.totalPages);
+    } else {
+      rangeWithDots.push(pagination.totalPages);
+    }
+
+    return rangeWithDots.filter((item, index, arr) => arr.indexOf(item) === index);
+  };
 
   const handleConfirmSession = async (sessionId) => {
     try {
@@ -348,7 +437,7 @@ const SessionsManagement = () => {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center space-x-3 mb-2">
-                      <h3 className="font-semibold text-gray-900">{session.topic}</h3>
+                      <h3 className="font-semibold text-gray-900">{session.module} - {session.topic}</h3>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(session.status)}`}>
                         {session.status.replace('_', ' ').toUpperCase()}
                       </span>
@@ -374,9 +463,20 @@ const SessionsManagement = () => {
                         <Clock className="w-4 h-4" />
                         <span>{dateTime.time} ({session.duration}min)</span>
                       </div>
+                      {session.meetingLink && (
+                        <a
+                          href={session.meetingLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center space-x-1 text-blue-600 hover:text-blue-800"
+                        >
+                          <MessageSquare className="w-4 h-4" />
+                          <span>Join Meeting</span>
+                        </a>
+                      )}
                     </div>
                     
-                    {session.description && (
+                    {session.description && session.description !== `${session.module} - ${session.topic}` && (
                       <p className="text-sm text-gray-600 mb-3">{session.description}</p>
                     )}
                   </div>
@@ -391,6 +491,56 @@ const SessionsManagement = () => {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {filteredSessions.length > 0 && pagination.totalPages > 1 && (
+        <div className="mt-6 flex items-center justify-between">
+          <div className="text-sm text-gray-700">
+            Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, pagination.total)} of {pagination.total} sessions
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={handlePreviousPage}
+              disabled={currentPage === 1}
+              className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              Previous
+            </button>
+            
+            <div className="flex items-center space-x-1">
+              {getPageNumbers().map((page, index) => (
+                <React.Fragment key={index}>
+                  {page === '...' ? (
+                    <span className="px-3 py-2 text-gray-500">...</span>
+                  ) : (
+                    <button
+                      onClick={() => handlePageChange(page)}
+                      className={`px-3 py-2 text-sm font-medium rounded-md ${
+                        currentPage === page
+                          ? 'bg-blue-600 text-white border border-blue-600'
+                          : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  )}
+                </React.Fragment>
+              ))}
+            </div>
+            
+            <button
+              onClick={handleNextPage}
+              disabled={currentPage === pagination.totalPages}
+              className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </button>
+          </div>
         </div>
       )}
 
