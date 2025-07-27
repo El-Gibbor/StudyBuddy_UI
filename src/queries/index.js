@@ -3,6 +3,7 @@ import profileService from '../services/profile/profile.service';
 import skillsService from '../services/skills/skills.service';
 import studyBuddyService from '../services/studybuddy/studybuddy.js';
 import sessionsService from '../services/sessions/sessions.service.js';
+import ticketsService from '../services/tickets/tickets.service';
 
 const useStatsQuery = () => {
   return useQuery({
@@ -108,6 +109,63 @@ const useSessionByIdQuery = (id, options = {}) => {
   });
 };
 
+// Hook for fetching tickets with filtering
+const useTicketsQuery = (params = {}, options = {}) => {
+  return useQuery({
+    queryKey: ['tickets', params],
+    queryFn: () => ticketsService.getTickets(params),
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    refetchOnWindowFocus: false,
+    ...options
+  });
+};
+
+// Hook for fetching tickets created by current user
+const useMyCreatedTicketsQuery = (params = {}, options = {}) => {
+  return useQuery({
+    queryKey: ['myCreatedTickets', params],
+    queryFn: () => ticketsService.getMyCreatedTickets(params),
+    staleTime: 1 * 60 * 1000, // 1 minute
+    refetchOnWindowFocus: false,
+    ...options
+  });
+};
+
+// Hook for fetching tickets claimed by current user
+const useMyClaimedTicketsQuery = (params = {}, options = {}) => {
+  return useQuery({
+    queryKey: ['myClaimedTickets', params],
+    queryFn: () => ticketsService.getMyClaimedTickets(params),
+    staleTime: 1 * 60 * 1000, // 1 minute
+    refetchOnWindowFocus: false,
+    ...options
+  });
+};
+
+// Hook for fetching a specific ticket by ID
+const useTicketByIdQuery = (id, options = {}) => {
+  return useQuery({
+    queryKey: ['ticket', id],
+    queryFn: () => ticketsService.getTicketById(id),
+    enabled: !!id, // Only run query if id is provided
+    staleTime: 30 * 1000, // 30 seconds
+    refetchOnWindowFocus: false,
+    ...options
+  });
+};
+
+// Hook for fetching comments for a ticket
+const useTicketCommentsQuery = (id, params = {}, options = {}) => {
+  return useQuery({
+    queryKey: ['ticketComments', id, params],
+    queryFn: () => ticketsService.getTicketComments(id, params),
+    enabled: !!id, // Only run query if id is provided
+    staleTime: 30 * 1000, // 30 seconds
+    refetchOnWindowFocus: false,
+    ...options
+  });
+};
+
 export {
     useStatsQuery,
     useUpcomingSessionsQuery,
@@ -118,5 +176,10 @@ export {
     useCurrentUserAvailabilityQuery,
     useSessionsQuery,
     useMySessionsQuery,
-    useSessionByIdQuery
+    useSessionByIdQuery,
+    useTicketsQuery,
+    useMyCreatedTicketsQuery,
+    useMyClaimedTicketsQuery,
+    useTicketByIdQuery,
+    useTicketCommentsQuery
 }
