@@ -3,16 +3,9 @@ import axiosClient from "../../utils/apiClient";
 class SessionsService {
     // Create a new session (book a session with a study buddy)
     async createSession(sessionData) {
-        try {
-            console.log('SessionsService: Creating session:', sessionData);
-
             const response = await axiosClient.post('/sessions', sessionData);
-            console.log('SessionsService: Session created successfully:', response.data);
             return response.data;
-        } catch (error) {
-            console.error('SessionsService: Error creating session:', error);
-            throw new Error(error.response?.data?.message || 'Failed to create session');
-        }
+       
     }
 
     // Get sessions with advanced filtering

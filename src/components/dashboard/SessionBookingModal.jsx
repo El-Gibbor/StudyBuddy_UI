@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useCreateSessionMutation } from '../../mutations';
+import { useToast } from '../ui/Toast';
 
 const SessionBookingModal = ({ 
   isOpen, 
@@ -15,6 +16,7 @@ const SessionBookingModal = ({
   });
 
   const createSessionMutation = useCreateSessionMutation();
+  const { showSuccess, showError } = useToast();
 
   // Helper function to get available time slots for the peer
   const getAvailableTimeSlots = () => {
@@ -104,9 +106,7 @@ const SessionBookingModal = ({
 
     // Validate that the selected datetime is within the peer's availability
     if (!isDateTimeAvailable(sessionForm.date)) {
-      if (onSuccess) {
-        onSuccess('Selected time is not within the buddy\'s available hours. Please choose a time when they are available.', 'error');
-      }
+      showError('Selected time is not within the buddy\'s available hours. Please choose a time when they are available.');
       return;
     }
 
@@ -132,6 +132,9 @@ const SessionBookingModal = ({
       // Close modal and show success
       onClose();
       
+      showSuccess('Session request sent successfully!');
+      
+      // Call onSuccess callback if provided (for backwards compatibility)
       if (onSuccess) {
         onSuccess('Session request sent successfully!');
       }
@@ -144,16 +147,23 @@ const SessionBookingModal = ({
       
       if (error?.response?.data) {
         const apiError = error.response.data;
-        // Handle the specific API error structure
+        
+        // Handle the specific API error structure you provided
         if (apiError.status === 'error' && apiError.error?.message) {
           errorMessage = apiError.error.message;
         } else if (apiError.message) {
           errorMessage = apiError.message;
+        } else if (apiError.data?.message) {
+          errorMessage = apiError.data.message;
         }
       } else if (error?.message) {
         errorMessage = error.message;
       }
       
+      // Show error toast
+      showError(errorMessage);
+      
+      // Call onSuccess callback with error if provided (for backwards compatibility)
       if (onSuccess) {
         onSuccess(errorMessage, 'error');
       }
