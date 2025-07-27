@@ -11,9 +11,7 @@ import {
   Filter,
   Search,
   Eye,
-  MoreHorizontal,
-  ChevronLeft,
-  ChevronRight
+  MoreHorizontal
 } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import { useMySessionsQuery } from '../../queries';
@@ -24,6 +22,7 @@ import {
   useCompleteSessionMutation,
   useCancelSessionMutation 
 } from '../../mutations';
+import { Pagination } from '../ui';
 
 const SessionsManagement = () => {
   const { user } = useAuth();
@@ -113,48 +112,6 @@ const SessionsManagement = () => {
     setCurrentPage(page);
     // Scroll to top when page changes
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handlePreviousPage = () => {
-    if (currentPage > 1) {
-      handlePageChange(currentPage - 1);
-    }
-  };
-
-  const handleNextPage = () => {
-    if (currentPage < pagination.totalPages) {
-      handlePageChange(currentPage + 1);
-    }
-  };
-
-  const getPageNumbers = () => {
-    const delta = 2;
-    const range = [];
-    const rangeWithDots = [];
-
-    for (
-      let i = Math.max(2, currentPage - delta);
-      i <= Math.min(pagination.totalPages - 1, currentPage + delta);
-      i++
-    ) {
-      range.push(i);
-    }
-
-    if (currentPage - delta > 2) {
-      rangeWithDots.push(1, '...');
-    } else {
-      rangeWithDots.push(1);
-    }
-
-    rangeWithDots.push(...range);
-
-    if (currentPage + delta < pagination.totalPages - 1) {
-      rangeWithDots.push('...', pagination.totalPages);
-    } else {
-      rangeWithDots.push(pagination.totalPages);
-    }
-
-    return rangeWithDots.filter((item, index, arr) => arr.indexOf(item) === index);
   };
 
   const handleConfirmSession = async (sessionId) => {
@@ -495,54 +452,14 @@ const SessionsManagement = () => {
       )}
 
       {/* Pagination */}
-      {filteredSessions.length > 0 && pagination.totalPages > 1 && (
-        <div className="mt-6 flex items-center justify-between">
-          <div className="text-sm text-gray-700">
-            Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, pagination.total)} of {pagination.total} sessions
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={handlePreviousPage}
-              disabled={currentPage === 1}
-              className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <ChevronLeft className="w-4 h-4 mr-1" />
-              Previous
-            </button>
-            
-            <div className="flex items-center space-x-1">
-              {getPageNumbers().map((page, index) => (
-                <React.Fragment key={index}>
-                  {page === '...' ? (
-                    <span className="px-3 py-2 text-gray-500">...</span>
-                  ) : (
-                    <button
-                      onClick={() => handlePageChange(page)}
-                      className={`px-3 py-2 text-sm font-medium rounded-md ${
-                        currentPage === page
-                          ? 'bg-blue-600 text-white border border-blue-600'
-                          : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  )}
-                </React.Fragment>
-              ))}
-            </div>
-            
-            <button
-              onClick={handleNextPage}
-              disabled={currentPage === pagination.totalPages}
-              className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Next
-              <ChevronRight className="w-4 h-4 ml-1" />
-            </button>
-          </div>
-        </div>
-      )}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={pagination.totalPages}
+        totalItems={pagination.total}
+        itemsPerPage={pageSize}
+        onPageChange={handlePageChange}
+        className="mt-6"
+      />
 
       {/* Feedback Modal */}
       {showFeedbackModal && selectedSession && (

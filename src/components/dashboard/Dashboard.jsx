@@ -11,6 +11,7 @@ import SessionsManagement from './SessionsManagement';
 import { Calendar, Users, Ticket, Search, Clock, Bell, BookOpen } from 'lucide-react';
 import availabilityService from '../../services/availability/availability.service';
 import skillsService from '../../services/skills/skills.service';
+import { useUnreadNotificationsCountQuery } from '../../queries';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -216,6 +217,19 @@ const Dashboard = () => {
     }
   };
 
+  const {
+    data: unreadCountData,
+    error: unreadCountError
+  } = useUnreadNotificationsCountQuery({
+    retry: 1,
+    staleTime: 10 * 1000,
+    onError: (error) => {
+      console.error('Failed to fetch unread count:', error);
+    }
+  });
+
+  const unreadCount = unreadCountData?.data?.unreadCount || 0;
+
   if (dashboardData.loading && activeTab === 'overview') {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -284,9 +298,9 @@ const Dashboard = () => {
                     <Icon className={`mr-3 flex-shrink-0 h-5 w-5 ${activeTab === tab.id ? 'text-white' : 'text-gray-400 group-hover:text-navy'
                       }`} />
                     {tab.label}
-                    {tab.id === 'notifications' && notifications.filter(n => !n.read).length > 0 && (
+                    {tab.id === 'notifications' && unreadCount > 0 && (
                       <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-1">
-                        {notifications.filter(n => !n.read).length}
+                        {unreadCount}
                       </span>
                     )}
                   </button>

@@ -7,3 +7,4 @@ export { default as Modal, ModalHeader, ModalContent, ModalFooter } from './Moda
 export { default as StatusBadge, PriorityBadge, Badge } from './Badge';
 export { default as EmptyState } from './EmptyState';
 export { default as Toast, ToastProvider, useToast } from './Toast';
+export { default as Pagination } from './Pagination';
