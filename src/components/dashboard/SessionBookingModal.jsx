@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { useCreateSessionMutation } from '../../mutations';
 import { useToast } from '../ui/Toast';
 
-const SessionBookingModal = ({
-  isOpen,
-  onClose,
-  selectedPeer,
-  onSuccess
+const SessionBookingModal = ({ 
+  isOpen, 
+  onClose, 
+  selectedPeer, 
+  onSuccess 
 }) => {
   const [sessionForm, setSessionForm] = useState({
     module: '',
@@ -25,7 +25,7 @@ const SessionBookingModal = ({
     }
 
     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
+    
     return selectedPeer.availability.map(slot => ({
       dayOfWeek: slot.dayOfWeek,
       dayName: dayNames[slot.dayOfWeek],
@@ -43,7 +43,7 @@ const SessionBookingModal = ({
     const selectedTime = selectedDate.toTimeString().slice(0, 5); // HH:MM format
 
     // Check if there's an availability slot for this day
-    const availableSlot = selectedPeer.availability.find(slot =>
+    const availableSlot = selectedPeer.availability.find(slot => 
       slot.dayOfWeek === selectedDayOfWeek
     );
 
@@ -51,6 +51,43 @@ const SessionBookingModal = ({
 
     // Check if the selected time is within the available time range
     return selectedTime >= availableSlot.startTime && selectedTime <= availableSlot.endTime;
+  };
+
+  // Generate suggested available datetime options for the next 2 weeks
+  const getSuggestedDateTimes = () => {
+    if (!selectedPeer?.availability || selectedPeer.availability.length === 0) {
+      return [];
+    }
+
+    const suggestions = [];
+    const today = new Date();
+    
+    // Look ahead 14 days
+    for (let i = 1; i <= 14; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      const dayOfWeek = date.getDay();
+      
+      // Check if this day has availability
+      const availableSlot = selectedPeer.availability.find(slot => 
+        slot.dayOfWeek === dayOfWeek
+      );
+      
+      if (availableSlot) {
+        // Create a datetime at the start of their available time
+        const [hours, minutes] = availableSlot.startTime.split(':');
+        const suggestionDate = new Date(date);
+        suggestionDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+        
+        suggestions.push({
+          datetime: suggestionDate.toISOString().slice(0, 16), // Format for datetime-local
+          display: `${suggestionDate.toLocaleDateString()} at ${availableSlot.startTime}`,
+          dayName: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][dayOfWeek]
+        });
+      }
+    }
+    
+    return suggestions.slice(0, 6); // Limit to first 6 suggestions
   };
 
   const handleFormInputChange = (field, value) => {
@@ -62,7 +99,7 @@ const SessionBookingModal = ({
 
   const handleSessionFormSubmit = async (e) => {
     e.preventDefault();
-
+    
     if (!sessionForm.topic.trim() || !sessionForm.date || !sessionForm.module.trim()) {
       return;
     }
@@ -83,7 +120,7 @@ const SessionBookingModal = ({
       };
 
       await createSessionMutation.mutateAsync(sessionData);
-
+      
       // Reset form
       setSessionForm({
         module: '',
@@ -91,26 +128,26 @@ const SessionBookingModal = ({
         date: '',
         meetingLink: ''
       });
-
+      
       // Close modal and show success
       onClose();
-
+      
       showSuccess('Session request sent successfully!');
-
+      
       // Call onSuccess callback if provided (for backwards compatibility)
       if (onSuccess) {
         onSuccess('Session request sent successfully!');
       }
-
+      
     } catch (error) {
       console.error('Failed to create session:', error);
-
+      
       // Extract error message from API response structure
       let errorMessage = 'Failed to send session request. Please try again.';
-
+      
       if (error?.response?.data) {
         const apiError = error.response.data;
-
+        
         // Handle the specific API error structure you provided
         if (apiError.status === 'error' && apiError.error?.message) {
           errorMessage = apiError.error.message;
@@ -122,10 +159,10 @@ const SessionBookingModal = ({
       } else if (error?.message) {
         errorMessage = error.message;
       }
-
+      
       // Show error toast
       showError(errorMessage);
-
+      
       // Call onSuccess callback with error if provided (for backwards compatibility)
       if (onSuccess) {
         onSuccess(errorMessage, 'error');
@@ -196,7 +233,7 @@ const SessionBookingModal = ({
                   required
                 />
               </div>
-
+              
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Date & Time *
@@ -205,10 +242,11 @@ const SessionBookingModal = ({
                   type="datetime-local"
                   value={sessionForm.date}
                   onChange={(e) => handleFormInputChange('date', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${sessionForm.date && !isDateTimeAvailable(sessionForm.date)
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    sessionForm.date && !isDateTimeAvailable(sessionForm.date)
                       ? 'border-red-300 bg-red-50'
                       : 'border-gray-300'
-                    }`}
+                  }`}
                   required
                 />
                 {sessionForm.date && !isDateTimeAvailable(sessionForm.date) && (
@@ -216,7 +254,7 @@ const SessionBookingModal = ({
                     This time is not within {selectedPeer.name}'s available hours.
                   </p>
                 )}
-
+                
                 {/* Show availability information */}
                 <div className="mt-2">
                   <p className="text-xs font-medium text-gray-700 mb-2">
@@ -236,8 +274,29 @@ const SessionBookingModal = ({
                     </p>
                   )}
                 </div>
-              </div>
 
+                {/* Show suggested times */}
+                {getSuggestedDateTimes().length > 0 && (
+                  <div className="mt-3">
+                    <p className="text-xs font-medium text-gray-700 mb-2">
+                      Suggested available times:
+                    </p>
+                    <div className="grid grid-cols-1 gap-1">
+                      {getSuggestedDateTimes().map((suggestion, index) => (
+                        <button
+                          key={index}
+                          type="button"
+                          onClick={() => handleFormInputChange('date', suggestion.datetime)}
+                          className="text-left px-2 py-1 text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 rounded border border-blue-200 transition-colors"
+                        >
+                          {suggestion.display}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+              
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Meeting Link (Optional)
@@ -260,9 +319,9 @@ const SessionBookingModal = ({
               type="submit"
               onClick={handleSessionFormSubmit}
               disabled={
-                createSessionMutation.isPending ||
-                !sessionForm.topic.trim() ||
-                !sessionForm.date ||
+                createSessionMutation.isPending || 
+                !sessionForm.topic.trim() || 
+                !sessionForm.date || 
                 !sessionForm.module.trim() ||
                 (sessionForm.date && !isDateTimeAvailable(sessionForm.date))
               }
