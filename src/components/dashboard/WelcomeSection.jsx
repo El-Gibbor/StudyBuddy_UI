@@ -130,11 +130,15 @@ const WelcomeSection = ({ user }) => {
             <p className="text-sm text-gray-500">
               {user?.email}
             </p>
-            {user.fullname?.bio && (
-              <p className="text-sm text-gray-500 mt-2 max-w-2xl">
-                {user.fullname?.bio}
-              </p>
-            )}
+            {
+              profileDataRes && profileDataRes.data.bio &&
+                profileDataRes?.data?.bio && (
+                  <p className="text-sm text-gray-500 mt-2 max-w-2xl">
+                    {profileDataRes?.data?.bio}
+                  </p>
+                )
+            }
+            
           </div>
         </div>
 
