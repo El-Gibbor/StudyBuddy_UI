@@ -22,6 +22,11 @@ class ProfileService {
     const response = await axiosClient.get('/user/upcoming-sessions');
     return response.data;
   }
+
+  async getUserProfile() {
+    const response = await axiosClient.get('/user/profile');
+    return response.data;
+  }
 }
 
 const profileService = new ProfileService();
