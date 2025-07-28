@@ -119,7 +119,7 @@ const WelcomeSection = ({ user }) => {
               {getGreeting()}, {getUserName()}!
             </h1>
             {
-              profileDataRes.data.major && profileDataRes.data.studyYear &&
+             profileDataRes && profileDataRes.data.major && profileDataRes.data.studyYear &&
               <p className="text-gray-600">
                 {profileDataRes?.data?.major} {`• ${profileDataRes?.data?.studyYear}`}
               </p>
