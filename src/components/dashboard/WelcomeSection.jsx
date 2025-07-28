@@ -3,7 +3,7 @@ import { Edit3, Star, Calendar, Users } from 'lucide-react';
 import EditProfileModal from './EditProfileModal';
 import profileService from '../../services/profile/profile.service';
 import { useAuth } from '../auth/AuthContext';
-import { useStatsQuery, useUpcomingSessionsQuery } from '../../queries/index';
+import { useProfile, useStatsQuery, useUpcomingSessionsQuery } from '../../queries/index';
 
 const WelcomeSection = ({ user }) => {
   const [showEditProfile, setShowEditProfile] = useState(false);
@@ -11,6 +11,8 @@ const WelcomeSection = ({ user }) => {
   const [updateError, setUpdateError] = useState('');
   const [updateSuccess, setUpdateSuccess] = useState('');
   // const { user: authUser, setUser } = useAuth();
+  const { data: profileDataRes } = useProfile();
+  console.log('WelcomeSection: Profile Data:', profileDataRes);
 
   const { isLoading, data: statsData } = useStatsQuery();
   const { data: upcomingSessionsData } = useUpcomingSessionsQuery();
@@ -116,20 +118,27 @@ const WelcomeSection = ({ user }) => {
             <h1 className="text-2xl font-bold text-gray-900">
               {getGreeting()}, {getUserName()}!
             </h1>
-            <p className="text-gray-600">
-              {user.fullname?.major} {`• ${user.fullname?.studyYear}`}
-            </p>
+            {
+             profileDataRes && profileDataRes.data.major && profileDataRes.data.studyYear &&
+              <p className="text-gray-600">
+                {profileDataRes?.data?.major} {`• ${profileDataRes?.data?.studyYear}`}
+              </p>
+            }
             {/* <p className="text-xs text-gray-400">
               {user.fullname?.schoolName || 'African Leadership University'}
             </p> */}
             <p className="text-sm text-gray-500">
               {user?.email}
             </p>
-            {user.fullname?.bio && (
-              <p className="text-sm text-gray-500 mt-2 max-w-2xl">
-                {user.fullname?.bio}
-              </p>
-            )}
+            {
+              profileDataRes && profileDataRes.data.bio &&
+                profileDataRes?.data?.bio && (
+                  <p className="text-sm text-gray-500 mt-2 max-w-2xl">
+                    {profileDataRes?.data?.bio}
+                  </p>
+                )
+            }
+            
           </div>
         </div>
 

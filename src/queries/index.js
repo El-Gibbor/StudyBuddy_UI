@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import profileService from '../services/profile/profile.service';   
+import profileService from '../services/profile/profile.service';
 import skillsService from '../services/skills/skills.service';
 import studyBuddyService from '../services/studybuddy/studybuddy.js';
 import sessionsService from '../services/sessions/sessions.service.js';
@@ -190,22 +190,32 @@ const useUnreadNotificationsCountQuery = (options = {}) => {
   });
 };
 
+const useProfile = () => {
+  return useQuery({
+    queryKey: ['userProfile'],
+    queryFn: profileService.getUserProfile,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
+  });
+};
+
 export {
-    useStatsQuery,
-    useUpcomingSessionsQuery,
-    useUserSkillsQuery,
-    useUserSkillsByIdQuery,
-    useStudyBuddiesQuery,
-    useStudyBuddyByIdQuery,
-    useCurrentUserAvailabilityQuery,
-    useSessionsQuery,
-    useMySessionsQuery,
-    useSessionByIdQuery,
-    useTicketsQuery,
-    useMyCreatedTicketsQuery,
-    useMyClaimedTicketsQuery,
-    useTicketByIdQuery,
-    useTicketCommentsQuery,
-    useNotificationsQuery,
-    useUnreadNotificationsCountQuery
+  useStatsQuery,
+  useUpcomingSessionsQuery,
+  useUserSkillsQuery,
+  useUserSkillsByIdQuery,
+  useStudyBuddiesQuery,
+  useStudyBuddyByIdQuery,
+  useCurrentUserAvailabilityQuery,
+  useSessionsQuery,
+  useMySessionsQuery,
+  useSessionByIdQuery,
+  useTicketsQuery,
+  useMyCreatedTicketsQuery,
+  useMyClaimedTicketsQuery,
+  useTicketByIdQuery,
+  useTicketCommentsQuery,
+  useNotificationsQuery,
+  useUnreadNotificationsCountQuery,
+  useProfile
 }
