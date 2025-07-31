@@ -41,6 +41,26 @@ const SessionBookingModal = ({
     }));
   };
 
+    // Helper function to check if a selected datetime is within available slots
+  const isDateTimeAvailable = (selectedDateTime) => {
+    if (!selectedDateTime || !selectedPeer?.availability) return false;
+
+    const selectedDate = new Date(selectedDateTime);
+    const selectedDayOfWeek = selectedDate.getDay();
+    const selectedTime = selectedDate.toTimeString().slice(0, 5); // HH:MM format
+
+    // Check if there's an availability slot for this day
+    const availableSlot = selectedPeer.availability.find(slot => 
+      slot.dayOfWeek === selectedDayOfWeek
+    );
+
+    if (!availableSlot) return false;
+
+    // Check if the selected time is within the available time range
+    return selectedTime >= availableSlot.startTime && selectedTime <= availableSlot.endTime;
+  };
+
+
   const handleSessionFormSubmit = async (e) => {
     e.preventDefault();
 
